@@ -7,11 +7,18 @@ miscellaneous common activities. The functions deal with the following:
 
 * boolean values
 * table printing
-* "not" prefixed functions
+* var meta data
+* constructing exceptions
 * type conversion/wrapping
+* "not" prefixed functions
+* array types
+* includes? (replacement for contains?)
 * argument/condition assertion
+* stack trace printing
+* assertion helpers
+* type annotation (typed abstraction)
 * keyword to/from string conversion
-* calling setter and getter methods
+* calling methods by reflection
 * java.util.Properties transformation
 * JNDI tree-printing and lookup
 
@@ -57,10 +64,10 @@ namespace:
 
 ## Type conversion
 
-    (str :some-key)         ; returns ":some-key"
-    (as-string :some-key)   ; returns "some-key"
+    (str :some-key)       ; returns ":some-key"
+    (as-string :some-key) ; returns "some-key"
     
-    (as-verbose-string nil) ; returns "<nil>"
+    (as-vstr nil)         ; returns "<nil>"
     
     (as-vector :hello)            ; returns [:hello]
     (as-vector [:set-value 1001]) ; returns [:set-value 1001]

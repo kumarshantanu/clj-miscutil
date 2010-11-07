@@ -4,21 +4,24 @@
 
 ## 0.2 / 2010-Nov-??
 
-- boolean values
-- table printing
-- var meta data
-- exception throwing
-- includes? function - replacement for contains?
-- friendly stack trace printing
-- type annotation
+* boolean values
+* table printing
+* var meta data
+* constructing exceptions
+* type conversion/wrapping
+* more "not" prefixed functions
+* array types
+* includes? (replacement for contains?)
+* friendly stack trace printing
+* type annotation (typed abstraction)
 
 
 ## 0.1 / 2010-Oct-22
 
-- "not" prefixed functions
-- type conversion/wrapping
-- argument/condition assertion
-- keyword to/from string conversion
-- calling setter and getter methods
-- java.util.Properties transformation
-- JNDI tree-printing and lookup
+* "not" prefixed functions
+* type conversion/wrapping
+* argument/condition assertion
+* keyword to/from string conversion
+* calling setter and getter methods
+* java.util.Properties transformation
+* JNDI tree-printing and lookup
