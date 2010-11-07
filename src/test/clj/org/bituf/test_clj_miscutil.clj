@@ -23,8 +23,8 @@
                   #(is (= (converter (first %)) (last %))))
         testall (fn [converter av-map]
                   (doall (map (tester converter) (seq av-map))))]
-    (testing "as-str"
-      (testall as-str
+    (testing "as-string"
+      (testall as-string
         {10 "10", nil "", "hello" "hello", :kw "kw"}))
     (testing "as-vstr"
       (testall as-vstr

@@ -213,38 +213,26 @@
 
 ;; ===== Type conversion =====
 
-(defn as-str
-  "Like clojure.core/str, but if an argument is a keyword or symbol,
-  its name will be used instead of its literal representation.
-
+(defn as-string
+  "Convert given argument to string.
   Example:
-     (str :foo :bar)     ;;=> \":foo:bar\"
-     (as-str :foo :bar)  ;;=> \"foobar\" 
-
-  Note that this does not apply to keywords or symbols nested within
-  data structures; they will be rendered as with str.
-
-  Example:
-     (str {:foo :bar})     ;;=> \"{:foo :bar}\"
-     (as-str {:foo :bar})  ;;=> \"{:foo :bar}\" "
-  ([] "")
-  ([x] (if (instance? clojure.lang.Named x)
-         (name x)
-         (str x)))
-  ([x & ys]
-     ((fn [^StringBuilder sb more]
-        (if more
-          (recur (. sb  (append (as-str (first more)))) (next more))
-          (str sb)))
-      (new StringBuilder ^String (as-str x)) ys)))
+    (str       \":one\") ; returns \":one\"
+    (as-string \":one\") ; returns \"one\"
+  See also: as-vstr"
+  [x]
+  (if (or (keyword? x) (symbol? x)) (name x)
+    (str x)))
 
 
 (defn as-vstr
-  "Convert to verbose string - useful for diagnostics and error messages"
-  ([] "")
-  ([x] (if-let [y x] (as-str y) "<nil>"))
-  ([x & y] (apply as-str
-             (map #(if (nil? %) "<nil>" %) (into [x] y)))))
+  "Convert to verbose string - useful for diagnostics and error messages. Like
+  as-string, but distinguishes nil as \"<nil>\". 
+  Example:
+    (as-string  nil) ; returns \"\"
+    (as-vstr    nil) ; returns \"<nil>\"
+  See also: as-string"
+  [x]
+  (if-let [y x] (as-string y) "<nil>"))
 
 
 (defn as-vector
@@ -336,7 +324,7 @@
 (defn not-zero?             [x] (not (zero?             x)))
 
 
-;; ===== includes? -- replacement for contains? =====
+;; ===== Array types =====
 
 (defn array-type
   "Return array type"
@@ -352,11 +340,14 @@
       (not-nil? (array-type obj))))
   ([obj elem-type]
     (if (or (nil? obj) (nil? elem-type)) false
-      (= (as-str elem-type) (as-str (array-type obj))))))
+      (= (as-string elem-type) (as-string (array-type obj))))))
 
+
+;; ===== includes? -- replacement for contains? =====
 
 (defn includes?
-  "Like 'contains?', but works for index collections (e.g. vectors, arrays) too"
+  "Like 'contains?', but works for indexed collections (e.g. vectors, arrays)
+  too"
   [coll needle]
   (let [indexless-coll (if (or (vector? coll) (array? coll)) (as-set coll)
                          coll)]
@@ -512,24 +503,24 @@
   (interpose ", " coll))
 
 
-(defn verify2
-  "Apply f? (must return Boolean) to args - return true when asserted true,
-  throw exception otherwise."
-  [f? & args]
-  (do
-    (assert (fn? f?))
-    (if (apply f? args) true
-      (illegal-arg
-        "Invalid argument(s) " (apply str (csv (map as-vstr args)))
-        " (Expected: " (or
-                         (try (source f?)
-                           (catch Exception _# nil))
-                         (try (:name (meta (resolve (quote f?))))
-                           (catch Exception _# nil))
-                         (meta f?))
-        ", Found: " (apply str (csv (map #(as-vstr (type %)) args))) ")"
-        ;(Thread/dumpStack)
-        (print-stacktrace)))))
+;(defn verify2
+;  "Apply f? (must return Boolean) to args - return true when asserted true,
+;  throw exception otherwise."
+;  [f? & args]
+;  (do
+;    (assert (fn? f?))
+;    (if (apply f? args) true
+;      (illegal-arg
+;        "Invalid argument(s) " (apply str (csv (map as-vstr args)))
+;        " (Expected: " (or
+;                         (try (source f?)
+;                           (catch Exception _# nil))
+;                         (try (:name (meta (resolve (quote f?))))
+;                           (catch Exception _# nil))
+;                         (meta f?))
+;        ", Found: " (apply str (csv (map #(as-vstr (type %)) args))) ")"
+;        ;(Thread/dumpStack)
+;        (print-stacktrace)))))
 
 
 (defmacro verify
@@ -547,10 +538,7 @@
                          (try (:name (meta (resolve (quote ~f?))))
                            (catch Exception _# nil))
                          (meta ~f?))
-        ", Found: " (apply str (csv (map #(as-vstr (type %)) args#))) ")"
-        ;(Thread/dumpStack)
-        ;(print-stacktrace)
-        ))))
+        ", Found: " (apply str (csv (map #(as-vstr (type %)) args#))) ")"))))
 
 
 (defn assert-type
@@ -780,7 +768,7 @@
       ;; Object target, String methodName, Object[] args
       target
       (if (keyword? method-name) (k-to-methodname method-name)
-        (as-str method-name))
+        (as-string method-name))
       (into-array Object args)))
   ([call-specs]
     (into [] (map #(apply method %) call-specs))))
