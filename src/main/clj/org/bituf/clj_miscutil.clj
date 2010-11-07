@@ -454,32 +454,37 @@
     ["File" "Line#" "Class" "Method" "IDE Reference"]))
 
 
-(defn print-stacktrace
+(defn print-stacktrace-rows
   "Print first non-empty stack trace in the following order:
   1. Application specific
   2. Clojure specific
   3. Entire stack trace
-  See also: print-exception-stacktrace"
-  ([stack-trace classname-begin-tokens classname-not-begin-tokens]
-    (let [all-stacktrace (stacktrace-rows stack-trace)
+  See also: print-stacktrace"
+  ([pred all-stacktrace-rows]
+    (let [all-stacktrace all-stacktrace-rows
           clj-stacktrace (filter clj-stacktrace-row? all-stacktrace)
-          app-stacktrace (filter #(app-stacktrace-row? % classname-begin-tokens
-                                    classname-not-begin-tokens)
-                           clj-stacktrace)]
+          app-stacktrace (filter pred clj-stacktrace)]
       (print-first-nonempty-stacktrace
         app-stacktrace
         clj-stacktrace
         all-stacktrace)))
-  ([stack-trace]
-    (let [all-stacktrace (stacktrace-rows stack-trace)
-          clj-stacktrace (filter clj-stacktrace-row? all-stacktrace)
-          app-stacktrace (filter app-stacktrace-row? clj-stacktrace)]
-      (print-first-nonempty-stacktrace
-        app-stacktrace
-        clj-stacktrace
-        all-stacktrace)))
+  ([all-stacktrace-rows]
+    (print-stacktrace-rows app-stacktrace-row? all-stacktrace-rows))
   ([]
-    (print-stacktrace (stacktrace-rows))))
+    (print-stacktrace-rows (stacktrace-rows))))
+
+
+(defn print-stacktrace
+  "Print given stack trace.
+  See also: print-exception-stacktrace, print-stacktrace-rows"
+  ([stack-trace classname-begin-tokens classname-not-begin-tokens]
+    (print-stacktrace-rows
+      #(app-stacktrace-row? % classname-begin-tokens classname-not-begin-tokens)
+      (stacktrace-rows stack-trace)))
+  ([stack-trace]
+    (print-stacktrace-rows (stacktrace-rows stack-trace)))
+  ([]
+    (print-stacktrace-rows)))
 
 
 (defn print-exception-stacktrace
@@ -615,6 +620,17 @@
                            (into #{} of-types))} )))))
 
 
+(defn ftyped
+  "Short for 'force-typed' and/or 'function-typed'. Same as 'typed' but coreces
+  a non-obj value (see 'obj?') as a no-arg function. Use this function instead
+  of 'typed' for basic data types such as string, keyword, number, date etc."
+  [obj type-1 & more]
+  (let [types (into [type-1] more)
+        t-obj (if (obj? obj) obj
+                (constantly obj))]
+    (apply typed t-obj types)))
+
+
 (defn typed?
   "Return true if a given object is of a certain type, false otherwise.
   See also: typed"
@@ -642,17 +658,6 @@
   "Return result of calling (some #(typed? obj %) types)."
   [obj type-1 & more]
   (apply typed? some obj (into [type-1] more)))
-
-
-(defn wrap
-  "Given anything (such as numeric, string, keyword etc. -- presumably that
-  cannot be annotated with meta data), return a no-arg function that when
-  executed returns the original value.
-  Example:
-    (let [x (wrap 10)]
-      (x))"
-  [v]
-  (fn [& xs] (or (and xs (apply v xs)) v)))
 
 
 ;; ===== Keyword to/from string conversion =====
