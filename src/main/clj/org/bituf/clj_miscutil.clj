@@ -10,13 +10,13 @@
 ;; ===== Boolean values ======
 
 (defn boolean?
-  "Tell whether given value is a boolean"
+  "Return true if given value is a boolean, false otherwise."
   [x]
   (instance? Boolean x))
 
 
 (defn not-boolean?
-  "Tell whether given value is not a boolean"
+  "Return true if given value is not a boolean, false otherwise."
   [x]
   (not (boolean? x)))
 
@@ -31,7 +31,7 @@
 
 
 (defn calc-width
-  "Calculate width for a collection of data rows"
+  "Calculate width for a collection of data rows."
   [data-rows]
   (let [col-count  (count (first data-rows))
         cols-width (atom
@@ -48,9 +48,9 @@
 
 
 (defn fixed-width-str
-  "Give fixed width string based on passed value and width. Alignment can
-  either be specified as :left, :right or :center/:centre, or it is inferred
-  from the given value."
+  "Return fixed width string based on passed value and width. Alignment can
+  either be specified as :left, :right or :center/:centre; if unspecified, it
+  is inferred from the given value."
   ([value width alignment]
     (let [xlt (xlat-np-chars (str value)) ; translated text
           len (count xlt)
@@ -151,7 +151,7 @@
 ;; ===== Var metadata  =====
 
 (defmacro var-name
-  "Return name of the var"
+  "Return name of the given var."
   [v]
   `(or
      (try (:name (meta (resolve (quote ~v))))
@@ -236,7 +236,7 @@
 
 
 (defn as-vector
-  "Convert/wrap given argument as a vector"
+  "Convert/wrap given argument as a vector."
   [anything]
   (if (vector? anything) anything
     (if (or (seq? anything) (set? anything)) (into [] anything)
@@ -246,7 +246,7 @@
 
 
 (defn as-set
-  "Convert/wrap given argument as a set"
+  "Convert/wrap given argument as a set."
   [anything]
   (if (set? anything) anything
     (if (or (seq? anything) (vector? anything)) (into #{} anything)
@@ -256,7 +256,7 @@
 
 
 (defn as-map
-  "Convert given collection as a map"
+  "Convert given collection as a map."
   [coll]
   (if (map? coll) coll
     (if (and (coll? coll) (even? (count coll))) (apply array-map coll)
@@ -327,14 +327,14 @@
 ;; ===== Array types =====
 
 (defn array-type
-  "Return array type"
+  "Return array type (class object) if given object is an array, nil otherwise."
   [obj]
   (if (nil? obj) nil
     (.getComponentType (class obj))))
 
 
 (defn array?
-  "Tell whether given object is an array"
+  "Return true if given object is an array, false otherwise."
   ([obj]
     (if (nil? obj) false
       (not-nil? (array-type obj))))
@@ -347,7 +347,8 @@
 
 (defn includes?
   "Like 'contains?', but works for indexed collections (e.g. vectors, arrays)
-  too"
+  too.
+  See also: contains? (in clojure.core)"
   [coll needle]
   (let [indexless-coll (if (or (vector? coll) (array? coll)) (as-set coll)
                          coll)]
@@ -357,12 +358,13 @@
 ;; ===== Argument/condition assertion =====
 
 (defmacro when-assert-cond
-  "Execute body if *assert-cond* flag is true. Function implemention may
-  use this macro to conditionally assert args or return value or any condition
-  within the code. Function consumers can instead use either of:
-  with-assert-cond
-  assert-cond-true
-  assert-cond-false"
+  "Execute body of code if *assert-cond* flag is true.
+  A function implemention may use this macro to conditionally assert args or
+  return value or any condition within the code.
+  A function consumers can instead use either of:
+    1. with-assert-cond
+    2. assert-cond-true
+    3. assert-cond-false"
   [& body]
   `(when *assert-cond*
     ~@body))
@@ -403,7 +405,9 @@
 
 (defn stacktrace-rows
   "Given an array or collection of StackTraceElement objects, return a vector
-  of [file-name line-number class-name method-name] objects."
+  of [file-name line-number class-name method-name ide-reference] objects. The
+  ide-reference field is to enable clickable links in IDEs.
+  See also: print-stacktrace"
   ([stack-trace]
     (map #(let [class-name  (or (.getClassName  ^StackTraceElement %) "")
                 method-name (or (.getMethodName ^StackTraceElement %) "")
@@ -417,7 +421,8 @@
 
 
 (defn clj-stacktrace-row?
-  "Tell (true/false) whether given stack trace row is Clojure-specific"
+  "Return true if given stack trace row is Clojure-specific, false otherwise.
+  See also: print-stacktrace"
   ([[file-name line-number class-name method-name]
     classname-begin-tokens classname-not-begin-tokens]
     (and (.contains file-name ".clj")
@@ -431,7 +436,8 @@
 
 
 (defn app-stacktrace-row?
-  "Tell (true or false) whether given stack trace row is app-specific"
+  "Return true if given stack trace row is app-specific, false otherwise.
+  See also: print-stacktrace"
   ([row]
     (clj-stacktrace-row? row [] ["clojure."]))
   ([row classname-begin-tokens classname-not-begin-tokens]
@@ -440,6 +446,8 @@
 
 
 (defn print-first-nonempty-stacktrace
+  "Print first non-empty stack trace from a given set of stack traces.
+  See also: print-stacktrace"
   [& stacktrace-rows]
   (print-table-with-header
     (first (filter not-empty? stacktrace-rows))
@@ -447,10 +455,11 @@
 
 
 (defn print-stacktrace
-  "Print first non-empty stack trace from the following:
+  "Print first non-empty stack trace in the following order:
   1. Application specific
   2. Clojure specific
-  3. Entire stack trace"
+  3. Entire stack trace
+  See also: print-exception-stacktrace"
   ([stack-trace classname-begin-tokens classname-not-begin-tokens]
     (let [all-stacktrace (stacktrace-rows stack-trace)
           clj-stacktrace (filter clj-stacktrace-row? all-stacktrace)
@@ -474,7 +483,8 @@
 
 
 (defn print-exception-stacktrace
-  "Print stack trace for a given exception"
+  "Print stack trace for a given exception.
+  See also: print-stacktrace"
   [^Throwable t]
   (binding [*out* *err*]
     (println (str t))
@@ -487,7 +497,9 @@
 
 
 (defmacro !
-  "Execute a body of code in try-catch block, and report friendly stack trace"
+  "Execute given body of code in a try-catch block; if exception occurs then
+  print friendly stack trace.
+  See also: print-exception-stacktrace, print-stacktrace"
   [& body]
   `(try ~@body
      (catch Exception e#
@@ -498,34 +510,16 @@
 ;; ===== Assertion helpers =====
 
 (defn csv
-  "Command separated values"
+  "Return comma separated values for a given collection of values."
   [coll]
   (interpose ", " coll))
 
 
-;(defn verify2
-;  "Apply f? (must return Boolean) to args - return true when asserted true,
-;  throw exception otherwise."
-;  [f? & args]
-;  (do
-;    (assert (fn? f?))
-;    (if (apply f? args) true
-;      (illegal-arg
-;        "Invalid argument(s) " (apply str (csv (map as-vstr args)))
-;        " (Expected: " (or
-;                         (try (source f?)
-;                           (catch Exception _# nil))
-;                         (try (:name (meta (resolve (quote f?))))
-;                           (catch Exception _# nil))
-;                         (meta f?))
-;        ", Found: " (apply str (csv (map #(as-vstr (type %)) args))) ")"
-;        ;(Thread/dumpStack)
-;        (print-stacktrace)))))
-
-
 (defmacro verify
-  "Apply f? (must return Boolean) to args - return true when asserted true,
-  throw exception otherwise."
+  "Apply f? (that must return Boolean) to args - return true when asserted true,
+  throw exception otherwise. You can use 'verify' as a substitute for 'assert'.
+  Example:
+    (verify map? {:a 10 :b 20})"
   [f? & many-args]
   `(let [args# (vector ~@many-args)]
     (assert (fn? ~f?))
@@ -542,6 +536,9 @@
 
 
 (defn assert-type
+  "Assert the type of a given value.
+  Example:
+    (assert-type \"Hello World!\" String)"
   [item expected-type]
   (assert (not-nil? item))
   (assert (instance? Class expected-type))
@@ -580,13 +577,13 @@
 
 
 (defn obj?
-  "Tell whether Clojure object (IObj)"
+  "Return true if argument is a Clojure object (IObj), false otherwise."
   [obj]
   (instance? clojure.lang.IObj obj))
 
 
 (defn- mdata-types
-  "Return meta data (map) and types (set) the object belongs to"
+  "Return meta data (map) and types (set) the object belongs to."
   [obj]
   (let [mdata (or (meta obj) {})
         types (types-keyword mdata)]
@@ -594,14 +591,17 @@
 
 
 (defn type-meta
-  "Return set of types the given object belongs to"
+  "Return the set of types the given object belongs to; return empty set if it
+  belongs to no type."
   [obj]
   (let [[_ types] (mdata-types obj)]
     (or types #{})))
 
 
 (defn typed
-  "Annotate given object with specified types"
+  "Annotate given object with specified types.
+  Example:
+    (typed [67.6 14.0 7.9] :discount-list :special-offers)"
   [obj type-1 & more]
   (let [of-types (into [type-1] more)]
     (when-assert-cond
@@ -616,7 +616,7 @@
 
 
 (defn typed?
-  "Tell whether a given object is of a certain type.
+  "Return true if a given object is of a certain type, false otherwise.
   See also: typed"
   ([f obj type-1 & more]
     (let [of-types (into [type-1] more)]
@@ -633,13 +633,13 @@
 
 
 (defn typed-every?
-  "Call typed? on obj for every type -- (every? #(typed? obj %) types)"
+  "Return result of calling (every? #(typed? obj %) types)."
   [obj type-1 & more]
   (apply typed? every? obj (into [type-1] more)))
 
 
 (defn typed-some?
-  "Call typed? on obj for at least one type -- (some #(typed? obj %) types)"
+  "Return result of calling (some #(typed? obj %) types)."
   [obj type-1 & more]
   (apply typed? some obj (into [type-1] more)))
 
@@ -850,8 +850,7 @@
   method spec and invokes the method upon execution.
   Example:
     ;; assuming a Person class having getters getName, getAddress and getEmail
-    (map (getter-fn person) [:name :address :email])
-"
+    (map (getter-fn person) [:name :address :email])"
   ([pojo]
     (fn [method-spec]
       (let [[method-name & args] (as-vector method-spec)]
@@ -958,6 +957,7 @@
 
 
 (defn print-jndi-tree
+  "Print JNDI tree. You should have JNDI environment configured beforehand."
   ([^String ct]
     (binding [*indent* (atom 0)]
       (do-print-jndi-tree ct)))
@@ -966,6 +966,7 @@
 
 
 (defn jndi-lookup
+  "Lookup key in JNDI context."
   ([^Context context k]
     (.lookup context k))
   ([k]
