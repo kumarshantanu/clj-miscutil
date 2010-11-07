@@ -1,0 +1,190 @@
+-*- markdown -*-
+
+# Clj-MiscUtil v0.2-SNAPSHOT
+
+Clj-MiscUtil is an assortment of Clojure functions/macros to carry out
+miscellaneous common activities. The functions deal with the following:
+
+* boolean values
+* table printing
+* "not" prefixed functions
+* type conversion/wrapping
+* argument/condition assertion
+* keyword to/from string conversion
+* calling setter and getter methods
+* java.util.Properties transformation
+* JNDI tree-printing and lookup
+
+
+## Usage
+
+Maven/Leiningen dependency details are here: [http://clojars.org/org.bituf/clj-miscutil](http://clojars.org/org.bituf/clj-miscutil)
+
+Examples for usage can be found in the tutorial below:
+
+
+## Building/Installation
+
+You will need Maven 2 to build from sources. Execute the following:
+
+    $ mvn clean package  # packages up a JAR in "target" dir
+    $ mvn install        # to install to your local Maven repo
+    $ mvn clojure:gendoc # generate Clojure API documentation
+
+
+## License
+
+Copyright (C) 2010 Shantanu Kumar (kumar.shantanu at gmail dot com)
+
+Distributed under the Apache 2 License.
+
+
+# Tutorial
+
+Clj-ArgUtil can be used by including the following in your
+namespace:
+
+    (ns example.app
+      (:use org.bituf.clj-miscutil))
+
+
+## Illegal argument
+
+    ;; throws IllegalArgumentException
+    
+    (illegal-arg "Expected employee type but found " (type emp))
+
+
+## Type conversion
+
+    (str :some-key)         ; returns ":some-key"
+    (as-string :some-key)   ; returns "some-key"
+    
+    (as-verbose-string nil) ; returns "<nil>"
+    
+    (as-vector :hello)            ; returns [:hello]
+    (as-vector [:set-value 1001]) ; returns [:set-value 1001]
+    
+    (as-set [1 2 3 3 4 5 5 6])    ; returns #{1 2 3 4 5 6}
+    
+    (as-map [:a 20 :b 40]) ; returns {:a 20 :b 40}
+    (as-map [1 2 3])       ; error!
+
+
+## "not" prefixed functions
+
+    (not-empty? x)
+    (not-nil? x)
+
+
+## Argument/condition assertion
+
+    ;; in the function implementation
+    (defn foo
+      [arg1 arg2 & more]
+      ;; argument assertion
+      (when-assert-cond
+        (assert (not-nil? arg1)))
+      ;; actual implementation comes here
+      ..)
+    
+    ;; in the code that uses 'foo'
+    (with-assert-cond true ; or (assert-cond-true ..), or (assert-cond-false ..)
+      (foo "arg1" :arg2))
+
+
+## Assertion helpers
+
+    (verify not-nil? arg) ; like 'assert' but fails with detail error message
+    
+    (assert-type "hello" String) ; asserts the type (class), fails verbosely
+
+
+## Keyword transformation functions
+
+    (k-to-colname :join-date)  ; convert to string, and dash to underscore
+    (colname-to-k "join_date") ; convert to keyword, and underscore to dash
+    
+    (k-to-camelstr :to-do) ; returns "toDo"
+    (camelstr-to-k "toDo") ; returns :to-do
+    
+    (k-to-methodname :to-do ["add"]) ; returns "addToDo" (now see k-to-camelstr)
+    (k-to-setter :price)       ; returns "setPrice"
+    (k-to-setter :set-price)   ; returns "setPrice" (detects "set", no repeat)
+    (k-to-getter :price)       ; returns "getPrice"
+    (k-to-getter :get-price)   ; returns "getPrice"  (detects "get", no repeat)
+    (k-to-getter :is-in-stock) ; returns "isInStock" (detects "is" too)
+
+
+## Reflection (not recommended for performance-critical code)
+
+Call Java method
+
+    (method "Hello" :char-at 0) ; returns \H
+    
+    (method (call-specs "Hello"
+              [:char-at 0]     ; .charAt(0)       - returns \H
+              [:substring 3 4] ; .substring(3, 4) - returns "l"
+              [:to-string]     ; .toString()      - returns "Hello"
+              ))
+    
+    (map (pojo-fn "Hello") [[:char-at 0]     ; returns primitive char
+                            [:substring 3 4] ; returns string
+                            [:to-string]     ; no-arg method
+                            ]) ; returns lazy (\H "l" "Hello")
+
+Call Java setter method
+
+    (setter (StringBuilder.)
+      :length 0) ; .setLength(0) - returns void, 'setter' returns nil
+    
+    (setter (call-specs sb
+              [:length 4]     ; .setLength(4)      - returns void
+              [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
+              )) ; 'setter' returns [nil nil]
+    
+    (map (setter-fn sb) [[:length 4]     ; .setLength(4)      - returns void
+                         [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
+                         ]) ; returns lazy (nil nil)
+
+Call Java getter method
+
+    (let [lst (java.util.LinkedList.)
+          _   (.add lst 1)
+          _   (.add lst 2)]
+      (getter lst :first) ; .getFirst() - returns 1
+      (getter (call-specs lst :first ; .getFirst() - returns 1
+                              :last  ; .getLast()  - returns 2
+                              )) ; returns [1 2]
+      (map (getter-fn lst) [:first ; .getFirst() - returns 1
+                            :last  ; .getLast()  - returns 2
+                            ])) ; returns lazy (1 2)
+
+
+## java.util.Properties handling
+
+Assuming that the file sample.properties has the following content:
+    a=10
+    b=20
+    c=true
+
+Properties can be transformed into maps:
+
+    (let [ps (read-properties "src/test/conf/sample.properties")]
+      (property-map ps) ; returns {"a" "10" "b" "20" "c" "true"}
+      (strkey-to-keyword
+        (property-map ps)) ; returns {:a "10" :b "20" :c "true"}
+      )
+    
+    (is-true? "true") ; returns true (useful to test bool values in properties)
+
+
+## JNDI functions (tree-printing not recommended for production use)
+
+    (print-jndi-tree) ; print the JNDI tree referring initial context
+    
+    (find-jndi-subcontext (javax.naming.InitialContext.)
+             "java:comp") ; returns javax.naming.Context (if configured)
+    
+    (jndi-lookup
+      "java:comp/env/myDataSource") ; returns javax.sql.DataSource (if configured)

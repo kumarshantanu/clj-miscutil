@@ -1,0 +1,24 @@
+-*- markdown -*-
+
+# Changes and TODO
+
+## 0.2 / 2010-Nov-??
+
+- boolean values
+- table printing
+- var meta data
+- exception throwing
+- includes? function - replacement for contains?
+- friendly stack trace printing
+- type annotation
+
+
+## 0.1 / 2010-Oct-22
+
+- "not" prefixed functions
+- type conversion/wrapping
+- argument/condition assertion
+- keyword to/from string conversion
+- calling setter and getter methods
+- java.util.Properties transformation
+- JNDI tree-printing and lookup
