@@ -97,6 +97,7 @@
           </execution>
         </executions>
         <configuration>
+          <warnOnReflection>true</warnOnReflection>
           <clojureOptions>-Dbasedir=${basedir}</clojureOptions>
           <compileDeclaredNamespaceOnly>true</compileDeclaredNamespaceOnly>
           <sourceDirectories>
