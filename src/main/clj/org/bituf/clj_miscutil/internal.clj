@@ -1,10 +1,13 @@
-(ns org.bituf.clj-miscutil.internal)
+(ns org.bituf.clj-miscutil.internal
+  (:import (java.util.Map))
+  (:import (javax.naming Binding Context InitialContext)))
 
 (def ^{:doc "Flag to determine whether arguments/conditions are to be asserted"}
       *assert-cond* true) ; true: development/testing, false: production
 
 
-(def ^{:doc "Typically bound to javax.naming.Context"}
+(def ^Context
+      ^{:doc "Typically bound to javax.naming.Context"}
       *root-context* nil)
 
 
@@ -41,5 +44,6 @@
   [^String fs]
   (apply str
     (map #(let [s (str %)]
-            (if (.contains pt-np-xlat-keys s) (get pt-np-xlat-map s) s))
+            (if (.containsKey ^java.util.Map pt-np-xlat-keys s)
+              (get pt-np-xlat-map s) s))
       fs)))

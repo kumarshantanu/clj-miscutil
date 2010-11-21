@@ -2,7 +2,9 @@
   "Assortment of functions for carrying out miscellaneous activities."
   (:import (javax.naming Binding Context InitialContext))
   (:import (javax.naming NameClassPair NamingEnumeration))
+  (:import (java.io PrintWriter StringWriter))
   (:import (clojure.lang Reflector))
+  (:require [clojure.pprint :as pp])
   (:use clojure.repl)
   (:use org.bituf.clj-miscutil.internal))
 
@@ -148,6 +150,48 @@
       (print-table-from-coll data-rows cols-width))))
 
 
+;; ===== Pretty printing =====
+
+
+(defmacro with-stringwriter
+  "Create a StringWriter and make it available in a let binding; execute body
+  of code in the let context and finally return the string from the writer."
+  [s & body]
+  `(let [~s (StringWriter.)]
+     (do ~@body)
+     (.toString ~s)))
+
+
+(defmacro printwriter-str
+  "Capture the output to specified device by executing body of code and return
+  as a string."
+  [^PrintWriter out & body]
+  `(let [sw# (StringWriter.)
+         pw# (PrintWriter. sw#)]
+     (binding [~out pw#]
+       (do ~@body)
+       (.toString sw#))))
+
+
+(defmacro out-str
+  "Capture the output to *out* by executing body of code and return as a string"
+  [& body]
+  `(printwriter-str *out* ~@body))
+
+
+(defmacro err-str
+  "Capture the output to *err* by executing body of code and return as a string"
+  [& body]
+  `(printwriter-str *err* ~@body))
+
+
+(defn pprint-str
+  "Pretty-print anything"
+  [whatever]
+  (with-stringwriter w
+    (pp/pprint whatever w)))
+
+
 ;; ===== Var metadata  =====
 
 (defmacro var-name
@@ -172,43 +216,77 @@
 
 ;; ===== Exceptions =====
 
+(defn illegal-arg-withcause
+  "Throw IllegalArgumentException with specified arguments. Use this when you
+   encounter bad/invalid parameters due to another exception."
+  [^Throwable reason & more]
+    (if (empty? more)
+      (throw (IllegalArgumentException. reason))
+      (throw (IllegalArgumentException. ^String (apply str more) reason))))
+
+
 (defn illegal-arg
   "Throw IllegalArgumentException with specified arguments. Use this when you
    encounter bad/invalid parameters."
-  [reason & more]
+  [^String reason & more]
   (if (instance? Throwable reason)
     ;; then
-    (if (empty? more)
-      (throw (IllegalArgumentException. reason))
-      (throw (IllegalArgumentException. (apply str more) reason)))
+    (apply illegal-arg-withcause reason more)
     ;; else
-    (throw (IllegalArgumentException. (apply str reason more)))))
+    (throw (IllegalArgumentException. ^String (apply str reason more)))))
+
+
+(defn value-and-type
+  [value]
+  (if (nil? value) "<nil>"
+    (format "%s (%s)" value (type value))))
+
+
+(defn illegal-arg-value
+  "Construct IllegalArgumentException for unmatched argument value"
+  [arg-name expected found-value]
+  (illegal-arg (format "Invalid argument '%s' - Expected: %s, Found: %s (%s)"
+                 arg-name expected (value-and-type found-value))))
+
+
+(defn illegal-state-withcause
+  "Throw IllegalStateException with specified arguments. Use this when you
+   encounter bad/invalid state while running the program."
+  [^Throwable reason & more]
+  (if (empty? more)
+    (throw (IllegalStateException. reason))
+    (throw (IllegalStateException. ^String (apply str more) reason))))
 
 
 (defn illegal-state
   "Throw IllegalStateException with specified arguments. Use this when you
    encounter bad/invalid state while running the program."
-  [reason & more]
+  [^String reason & more]
   (if (instance? Throwable reason)
     ;; then
-    (if (empty? more)
-      (throw (IllegalStateException. reason))
-      (throw (IllegalStateException. (apply str more) reason)))
+    (apply illegal-state-withcause reason more)
     ;; else
-    (throw (IllegalStateException. (apply str reason more)))))
+    (throw (IllegalStateException. ^String (apply str reason more)))))
+
+
+(defn unsupported-op-withcause
+  "Throw UnsupportedOperationException with specified arguments. Use this when
+  you do not support an operation due to an underlying exception."
+  [^Throwable reason & more]
+  (if (empty? more)
+    (throw (UnsupportedOperationException. reason))
+    (throw (UnsupportedOperationException. ^String (apply str more) reason))))
 
 
 (defn unsupported-op
   "Throw UnsupportedOperationException with specified arguments. Use this when
   you do not support an operation."
-  [reason & more]
+  [^String reason & more]
   (if (instance? Throwable reason)
     ;; then
-    (if (empty? more)
-      (throw (UnsupportedOperationException. reason))
-      (throw (UnsupportedOperationException. (apply str more) reason)))
+    (apply unsupported-op-withcause reason more)
     ;; else
-    (throw (UnsupportedOperationException. (apply str reason more)))))
+    (throw (UnsupportedOperationException. ^String (apply str reason more)))))
 
 
 ;; ===== Type conversion =====
@@ -423,7 +501,7 @@
 (defn clj-stacktrace-row?
   "Return true if given stack trace row is Clojure-specific, false otherwise.
   See also: print-stacktrace"
-  ([[file-name line-number class-name method-name]
+  ([[^String file-name line-number ^String class-name ^String method-name]
     classname-begin-tokens classname-not-begin-tokens]
     (and (.contains file-name ".clj")
       (or (empty? classname-begin-tokens)
@@ -490,15 +568,17 @@
 (defn print-exception-stacktrace
   "Print stack trace for a given exception.
   See also: print-stacktrace"
-  [^Throwable t]
-  (binding [*out* *err*]
-    (println (str t))
-    (loop [th t]
-      (print-stacktrace (.getStackTrace th))
-      (let [cause (.getCause th)]
-        (when (not-nil? cause)
-          (println "Caused by: " (str cause))
-          (recur cause))))))
+  ([^Throwable t ^PrintWriter pw]
+    (binding [*out* pw]
+      (println (str t))
+      (loop [th t]
+        (print-stacktrace (.getStackTrace th))
+        (let [cause (.getCause th)]
+          (when (not-nil? cause)
+            (println "Caused by: " (str cause))
+            (recur cause))))))
+  ([^Throwable t]
+    (print-exception-stacktrace t *err*)))
 
 
 (defmacro !
@@ -514,10 +594,11 @@
 
 ;; ===== Assertion helpers =====
 
-(defn csv
-  "Return comma separated values for a given collection of values."
+
+(defn comma-sep-str
+  "Return comma separated string for a given collection of values."
   [coll]
-  (interpose ", " coll))
+  (apply str (interpose ", " coll)))
 
 
 (defmacro verify
@@ -530,14 +611,15 @@
     (assert (fn? ~f?))
     (if (apply ~f? args#) true
       (illegal-arg
-        "Invalid argument " (apply str (csv (map as-vstr args#)))
+        "Invalid argument " (comma-sep-str (map as-vstr args#))
         " (Expected: " (or
                          (try (source ~f?)
                            (catch Exception _# nil))
                          (try (:name (meta (resolve (quote ~f?))))
                            (catch Exception _# nil))
                          (meta ~f?))
-        ", Found: " (apply str (csv (map #(as-vstr (type %)) args#))) ")"))))
+        ", Found: " (comma-sep-str (map #(as-vstr (type %)) args#))
+                    ")"))))
 
 
 (defn assert-type
@@ -674,7 +756,7 @@
 (defn colname-to-k
   "Convert database column name (string) to keyword after replacing underscore
   with dash."
-  [s]
+  [^String s]
   (let [n (.replace s "_" "-")]
     (keyword n)))
 
@@ -691,9 +773,9 @@
   (let [s (name k)
         tokens (filter not-empty? (into [] (.split s "-")))
         ;; ucase1 converts first character to upper case
-        ucase1 #(str (Character/toUpperCase (first %))
+        ucase1 #(str (Character/toUpperCase ^Character (first %))
                   (apply str (rest %)))
-        lcase  #(if (not-nil? %) (.toLowerCase %))
+        lcase  #(if (not-nil? %) (.toLowerCase ^String %))
         cctoks (map ucase1 tokens)]
     (apply str (lcase (first cctoks)) (rest cctoks))))
 
@@ -704,9 +786,9 @@
   [cs]
   (let [b (StringBuilder.)
         f #(do
-             (if (and (Character/isUpperCase %) (not (empty? b)))
+             (if (and (Character/isUpperCase ^Character %) (not (empty? b)))
                (.append b \-))
-             (.append b (Character/toLowerCase %)))
+             (.append b (Character/toLowerCase ^Character %)))
         _ (doall (map f cs))
         a (filter not-empty? (into [] (.split (.toString b) "-")))
         s (apply str (interpose \- a))]
@@ -891,7 +973,7 @@
   "Tell whether a given value is equivalent to true."
   [any]
   (if (string? any)
-    (let [v (.toLowerCase any)]
+    (let [v (.toLowerCase ^String any)]
       (or
         (= "true" v)
         (= "yes"  v)
@@ -937,18 +1019,18 @@
   [^NamingEnumeration ne ^String parent-ctx]
   (loop []
     (when (.hasMoreElements ne)
-      (let [next-elem (.nextElement ne)]
+      (let [^NameClassPair next-elem (.nextElement ne)]
         (print-entry next-elem)
         (increase-indent)
         (if (or (instance? Context next-elem)
               (and (instance? NameClassPair next-elem)
-                (instance? Context (.getObject next-elem))))
+                (instance? Context (.getObject ^Binding next-elem))))
           (do-print-jndi-tree
             (if (zero? (.length parent-ctx))
               (.getName next-elem)
               (str parent-ctx "/" (.getName next-elem))))
           (println "** Not drilling "
-            (type (.getObject next-elem))))
+            (type (.getObject ^Binding next-elem))))
         (decrease-indent))
       (recur))))
 
@@ -972,7 +1054,7 @@
 
 (defn jndi-lookup
   "Lookup key in JNDI context."
-  ([^Context context k]
+  ([^Context context ^String k]
     (.lookup context k))
   ([k]
     (jndi-lookup (InitialContext.) k)))
@@ -985,6 +1067,6 @@
   [^Context context & args]
   (assert (not (nil? args)))
   (assert (not (some nil? args)))
-  (let [lookup-fn (fn [ctx k] (.lookup ctx k))
+  (let [lookup-fn (fn [^Context ctx ^String k] (.lookup ctx k))
         new-ctx (reduce lookup-fn context args)]
     new-ctx))
