@@ -1,9 +1,10 @@
 (ns org.bituf.clj-miscutil
   "Assortment of functions for carrying out miscellaneous activities."
-  (:import (javax.naming Binding Context InitialContext))
-  (:import (javax.naming NameClassPair NamingEnumeration))
-  (:import (java.io PrintWriter StringWriter))
-  (:import (clojure.lang Reflector))
+  (:import
+    [javax.naming Binding Context InitialContext
+                  NameClassPair NamingEnumeration]
+    [java.io      PrintWriter StringWriter]
+    [clojure.lang Reflector])
   (:require
     [clojure.pprint :as pp]
     [clojure.repl   :as repl]
