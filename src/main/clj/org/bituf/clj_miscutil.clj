@@ -4,9 +4,10 @@
   (:import (javax.naming NameClassPair NamingEnumeration))
   (:import (java.io PrintWriter StringWriter))
   (:import (clojure.lang Reflector))
-  (:require [clojure.pprint :as pp])
-  (:use clojure.repl)
-  (:use org.bituf.clj-miscutil.internal))
+  (:require
+    [clojure.pprint :as pp]
+    [clojure.repl   :as repl]
+    [org.bituf.clj-miscutil.internal :as in]))
 
 
 ;; ===== Boolean values ======
@@ -40,7 +41,7 @@
                      (into []
                        (take col-count (repeat 0))))]
     (doseq [each-row data-rows]
-      (let [each-cols-width (map #(count (xlat-np-chars (str %))) each-row)]
+      (let [each-cols-width (map #(count (in/xlat-np-chars (str %))) each-row)]
         (reset! cols-width
           (->> each-cols-width
             (map max @cols-width)         ; find max real width
@@ -54,7 +55,7 @@
   either be specified as :left, :right or :center/:centre; if unspecified, it
   is inferred from the given value."
   ([value width alignment]
-    (let [xlt (xlat-np-chars (str value)) ; translated text
+    (let [xlt (in/xlat-np-chars (str value)) ; translated text
           len (count xlt)
           lhs (case alignment
                 :right  (- width len)
@@ -209,7 +210,7 @@
   "Return the body of the var"
   [v]
   (or
-    (source v)
+    (repl/source v)
     (try (quote v)
       (catch Exception _# nil))))
 
@@ -444,7 +445,7 @@
     2. assert-cond-true
     3. assert-cond-false"
   [& body]
-  `(when *assert-cond*
+  `(when in/*assert-cond*
     ~@body))
 
 
@@ -454,7 +455,7 @@
     (with-assert-cond false
       ..)"
   [bool & body]
-  `(binding [*assert-cond* ~bool]
+  `(binding [in/*assert-cond* ~bool]
     ~@body))
 
 
@@ -613,7 +614,7 @@
       (illegal-arg
         "Invalid argument " (comma-sep-str (map as-vstr args#))
         " (Expected: " (or
-                         (try (source ~f?)
+                         (try (repl/source ~f?)
                            (catch Exception _# nil))
                          (try (:name (meta (resolve (quote ~f?))))
                            (catch Exception _# nil))
@@ -645,7 +646,7 @@
     [:salaried :person]
   See also: with-implied-types"
   [obj-type]
-  (let [types (*implied-types* obj-type)]
+  (let [types (in/*implied-types* obj-type)]
     types))
 
 
@@ -659,7 +660,7 @@
                (typed? ravi :person)))
     true"
   [all-implied-types & body]
-  `(binding [*implied-types* ~all-implied-types]
+  `(binding [in/*implied-types* ~all-implied-types]
      ~@body))
 
 
@@ -673,7 +674,7 @@
   "Return meta data (map) and types (set) the object belongs to."
   [obj]
   (let [mdata (or (meta obj) {})
-        types (types-keyword mdata)]
+        types (in/types-keyword mdata)]
     [mdata types]))
 
 
@@ -698,7 +699,7 @@
     (let [[mdata types] (mdata-types obj)]
       (with-meta obj
         (into mdata
-          {types-keyword (or (and types (apply conj types of-types))
+          {in/types-keyword (or (and types (apply conj types of-types))
                            (into #{} of-types))} )))))
 
 
@@ -836,11 +837,26 @@
 
 
 (defn class-methods
-  "Return a lazy list of all declared methods in a class. If the argument is a
-  a class instance, then its class is derived."
+  "Return a lazy list of method-specs reflecting all the methods declared by the
+  class or interface represented by the given Class object. If the argument is
+  not a class instance, then its class is derived.
+  See also: public-methods, clojure.contrib.repl-utils/show"
   [^Class klass]
   (map method-sig
     (.getDeclaredMethods (if (class? klass) klass
+                           (class klass)))))
+
+
+(defn public-methods
+  "Return a lazy list of method-specs reflecting all the public member methods
+  of the class or interface represented by the given Class object, including
+  those declared by the class or interface and those inherited from superclasses
+  and superinterfaces. If the argument is not a class instance, then its class
+  is derived.
+  See also: class-methods, clojure.contrib.repl-utils/show"
+  [^Class klass]
+  (map method-sig
+    (.getMethods (if (class? klass) klass
                            (class klass)))))
 
 
@@ -1004,17 +1020,17 @@
 
 
 (defn- increase-indent []
-  (swap! *indent* #(+ % 4)))
+  (swap! in/*indent* #(+ % 4)))
 
 
 (defn- decrease-indent []
-  (swap! *indent* #(- % 4)))
+  (swap! in/*indent* #(- % 4)))
 
 
 (defn- print-entry
   [^NameClassPair next-elem]
   (let [indent-str (apply str
-                     (take @*indent* (repeat " ")))]
+                     (take @in/*indent* (repeat " ")))]
     (if (nil? next-elem) (println indent-str "--> <nil>")
       (println indent-str "-->"
         (.getName next-elem)
@@ -1047,15 +1063,15 @@
 (defn- do-print-jndi-tree
   [^String ct]
   (assert (not (nil? ct)))
-  (if (instance? Context *root-context*)
-    (print-ne (.list *root-context* ct) ct)
-    (print-entry *root-context*)))
+  (if (instance? Context in/*root-context*)
+    (print-ne (.list in/*root-context* ct) ct)
+    (print-entry in/*root-context*)))
 
 
 (defn print-jndi-tree
   "Print JNDI tree. You should have JNDI environment configured beforehand."
   ([^String ct]
-    (binding [*indent* (atom 0)]
+    (binding [in/*indent* (atom 0)]
       (do-print-jndi-tree ct)))
   ([]
    (print-jndi-tree "")))
