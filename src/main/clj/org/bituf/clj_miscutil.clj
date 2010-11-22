@@ -835,6 +835,15 @@
     (into [] (map #(into [] (cons target (as-vector %))) method-specs))))
 
 
+(defn class-methods
+  "Return a lazy list of all declared methods in a class. If the argument is a
+  a class instance, then its class is derived."
+  [^Class klass]
+  (map method-sig
+    (.getDeclaredMethods (if (class? klass) klass
+                           (class klass)))))
+
+
 (defn method
   "Call instance method on the target object. Wrapper for
   Reflector/invokeInstanceMethod (see link):
