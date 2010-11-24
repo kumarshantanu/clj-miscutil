@@ -2,6 +2,10 @@
   (:import (java.util.Map))
   (:import (javax.naming Binding Context InitialContext)))
 
+
+(def random-seed (java.util.Random.))
+
+
 (def ^{:doc "Flag to determine whether arguments/conditions are to be asserted"}
       *assert-cond* true) ; true: development/testing, false: production
 

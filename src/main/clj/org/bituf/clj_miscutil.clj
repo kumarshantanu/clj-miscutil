@@ -11,7 +11,23 @@
     [org.bituf.clj-miscutil.internal :as in]))
 
 
+;; ===== Random values ======
+
+
+(defn random-number
+  "Generate a random number"
+  []
+  (Math/abs (.nextLong in/random-seed)))
+
+
+(defn random-string
+  "Generate a random string"
+  []
+  (Long/toString (random-number) 36))
+
+
 ;; ===== Boolean values ======
+
 
 (defn boolean?
   "Return true if given value is a boolean, false otherwise."
