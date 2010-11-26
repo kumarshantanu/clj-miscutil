@@ -1,10 +1,10 @@
 (ns org.bituf.clj-miscutil
   "Assortment of functions for carrying out miscellaneous activities."
   (:import
-    [javax.naming Binding Context InitialContext
-                  NameClassPair NamingEnumeration]
-    [java.io      PrintWriter StringWriter]
-    [clojure.lang Reflector])
+    (javax.naming Binding Context InitialContext
+                  NameClassPair NamingEnumeration)
+    (java.io      PrintWriter StringWriter)
+    (clojure.lang Reflector))
   (:require
     [clojure.pprint :as pp]
     [clojure.repl   :as repl]
@@ -1056,7 +1056,7 @@
   `(do
     (assert (not (nil? ~root-context)))
     (assert (instance? Context ~root-context))
-    (binding [*root-context* ~root-context]
+    (binding [in/*root-context* ~root-context]
       ~@body)))
 
 

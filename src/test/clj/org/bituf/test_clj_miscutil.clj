@@ -1,6 +1,7 @@
 (ns org.bituf.test-clj-miscutil
+  (:require
+    [org.bituf.clj-miscutil.internal :as in])
   (:use org.bituf.clj-miscutil)
-  (:use org.bituf.clj-miscutil.internal)
   (:use clojure.test))
 
 
@@ -61,9 +62,9 @@
         when-false #(is (= nil
                           (throw-excp)))]
     (testing "if-assert-cond"
-      (binding [*assert-cond* true]
+      (binding [in/*assert-cond* true]
         (when-true))
-      (binding [*assert-cond* false]
+      (binding [in/*assert-cond* false]
         (when-false)))
     (testing "with-assert-cond"
       (with-assert-cond true
