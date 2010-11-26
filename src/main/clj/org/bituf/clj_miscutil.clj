@@ -307,6 +307,30 @@
     (throw (UnsupportedOperationException. ^String (apply str reason more)))))
 
 
+;; ===== Non-breaking error handling =====
+
+(defmacro maybe
+  "Execute given body of code in a try-catch block and return a 2-element vector
+  [value exception], such that if the body of code returns a value without
+  throwing any exception then the vector contains [value nil], otherwise (in
+  event of an exception) the vector contains [nil exception].
+  Example:
+    (defn valid-name [name]
+      (if (not (and (string? name)
+                 (not (empty? name))))
+        (throw (IllegalArgumentException. \"Bad name\")))
+      name)
+    ;; using the 'valid-name' fn
+    (defn say-hello [name]
+    (let [[vname error] (maybe (valid-name name))]
+      (if error (println \"Error: \" error)
+        (println \"Hello \" name))))"
+  [& body]
+  `(try [(do ~@body) nil]
+     (catch Exception e#
+       [nil e#])))
+
+
 ;; ===== Type conversion =====
 
 (defn as-string
