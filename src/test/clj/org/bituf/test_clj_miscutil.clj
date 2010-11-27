@@ -13,10 +13,82 @@
       (seq m))))
 
 
-(deftest test-illegal-arg
+(deftest test-random
+  (testing "random-number"
+    (is (not= (random-number) (random-number) (random-number))))
+  (testing "random-string"
+    (is (not= (random-string) (random-string) (random-string)))))
+
+
+(deftest test-boolean
+  (testing "boolean?"
+    (is (boolean? false)))
+  (testing "not-boolean?"
+    (is (not-boolean? 55))))
+
+
+(deftest test-pretty-printing
+  (testing "out-str"
+    (is (= "Hello" (out-str (print "Hello")))))
+  (testing "err-str"
+    (is (= "Hello" (err-str (binding [*out* *err*] (print "Hello")))))
+    (let [txt (out-err-str
+                (! (/ 10 0)))
+          ltx (.substring ^String txt 0 45)]
+      (is (= ltx "java.lang.ArithmeticException: Divide by zero"))))
+  (testing "out-err-str"
+    (let [txt (out-err-str
+                (print "Hello")
+                (! (/ 10 0)))
+          ltx (.substring ^String txt 0 50)]
+      (is (= ltx "Hellojava.lang.ArithmeticException: Divide by zero"))))
+  (testing "pprint-str"
+    (let [x (take 12 (iterate inc 0))]
+      (is (= (out-str (clojure.pprint/pprint x)) (pprint-str x))))))
+
+
+(deftest test-var-metadata
+  (testing "var-name"
+    (is (= "map?" (var-name map?)))
+    (is (= "some" (var-name some))))
+  (testing "var-body"
+    (is (let [b (var-body map?)]
+          (and (string? b) (not-empty? b))))
+    (is (= "Source not found\n" (var-body #(do 44))))))
+
+
+(deftest test-exception-throwing
   (testing "illegal-arg"
     (is (thrown? IllegalArgumentException
-          (illegal-arg "reason")))))
+          (illegal-arg "reason"))))
+  (testing "illegal-arg-withcause"
+    (is (thrown? IllegalArgumentException
+          (illegal-arg-withcause (NullPointerException.) "Null value"))))
+  (testing "value-and-type"
+    (is (= "45 (class java.lang.Integer)" (value-and-type 45)))
+    (is (= "<nil>" (value-and-type nil))))
+  (testing "illegal-arg-value"
+    (is (thrown? IllegalArgumentException
+          (illegal-arg-value "reason"))))
+  (testing "illegal-state"
+    (is (thrown? IllegalStateException
+          (illegal-state "reason"))))
+  (testing "illegal-state-withcause"
+    (is (thrown? IllegalStateException
+          (illegal-state-withcause (NullPointerException.) "Null value"))))
+  (testing "unsupported-op"
+    (is (thrown? UnsupportedOperationException
+          (unsupported-op "reason"))))
+  (testing "unsupported-op-withcause"
+    (is (thrown? UnsupportedOperationException
+          (unsupported-op-withcause (NullPointerException.) "Null value")))))
+
+
+(deftest test-exception-catching
+  (testing "maybe"
+    (is (= [10 nil] (maybe 10)))
+    (let [[_ e] (maybe (throw (NullPointerException.)))]
+      (is (instance? NullPointerException e)))))
 
 
 (deftest test-type-conversion
@@ -27,6 +99,8 @@
     (testing "as-string"
       (testall as-string
         {10 "10", nil "", "hello" "hello", :kw "kw"}))
+    (testing "java-filename"
+      (is (= "C:/path/to/file.txt" (java-filename "C:\\path\\to\\file.txt"))))
     (testing "as-vstr"
       (testall as-vstr
         {10 "10", nil "<nil>", "hello" "hello", :kw "kw"}))
@@ -54,6 +128,30 @@
     (is (= (not (empty? [])) (not-empty? [])))))
 
 
+(deftest test-arrays
+  (testing "array-type"
+    (is (= nil (array-type nil)))
+    (is (= (array-type (into-array ["Hello" "World"])) String)))
+  (testing "array?"
+    (is (not (array? nil)))
+    (is (not (array? ["Hello" "World"])))
+    (is (array? (into-array ["Hello" "World"])))
+    (is (array? (into-array ["Hello" "World"]) String)))
+  (testing "not-array?"
+    (is (not-array? nil))
+    (is (not-array? []))
+    (is (not (not-array? (into-array []))))))
+
+
+(deftest test-includes
+  (testing "includes?"
+    (is (includes? [91 92 93 94 95] 91))
+    (is (not (includes? nil "Hello"))))
+  (testing "not-includes?"
+    (is (not-includes? nil "Hello"))
+    (is (not-includes? [91 92 93 94 95] 99))))
+
+
 (deftest test-condition-assertion
   (let [throw-excp #(when-assert-cond
                       (illegal-arg "reason"))
@@ -79,6 +177,15 @@
         (when-false)))))
 
 
+(deftest test-stacktrace-printing
+  (testing "print-exception-stacktrace"
+    (let [st (err-str (print-exception-stacktrace (NullPointerException.)))]
+      (is (and (string? st) (not-empty? st)))))
+  (testing "!"
+    (let [st (err-str (! (/ 10 0)))]
+      (is (and (string? st) (not-empty? st))))))
+
+
 (deftest test-assertion-helpers
   (testing "verify"
     (is (= true (verify empty? [])))
@@ -86,6 +193,24 @@
   (testing "assert-type"
     (is (= nil (assert-type "aa" String)))
     (is (thrown? AssertionError (assert-type true String)))))
+
+
+(deftest test-type-annotation
+  (testing "implied-types"
+    (with-implied-types {:employee [:salaried :person]
+                         :salaried [:person]}
+      (let [ravi (typed {:name "Ravi" :empid 7784}
+                   :employee)]
+        (is (typed? ravi :person) "Transitive types"))))
+  (testing "typed"
+    (is (typed? (typed {} :abc) :abc)))
+  (testing "ftyped"
+    (is (typed? (ftyped 1055 :abc) :abc)))
+  (testing "typed-every? and typed-some?"
+    (with-implied-types {:employee [:salaried :person]
+                         :salaried [:person]}
+      (is (typed-every? (typed {} :employee) :salaried :person))
+      (is (typed-some? (typed {} :employee) :freelancer :person)))))
 
 
 (deftest test-keyword-string-conversion
@@ -230,11 +355,20 @@
 
 
 (defn test-ns-hook []
-  (test-illegal-arg)
+  (test-random)
+  (test-boolean)
+  (test-pretty-printing)
+  (test-var-metadata)
+  (test-exception-throwing)
+  (test-exception-catching)
   (test-type-conversion)
   (test-not-prefixed)
+  (test-arrays)
+  (test-includes)
   (test-condition-assertion)
+  (test-stacktrace-printing)
   (test-assertion-helpers)
+  (test-type-annotation)
   (test-keyword-string-conversion)
   (test-reflection)
   (test-properties)

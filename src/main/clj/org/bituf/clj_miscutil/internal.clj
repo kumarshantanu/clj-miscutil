@@ -49,6 +49,6 @@
   [^String fs]
   (apply str
     (map #(let [s (str %)]
-            (if (.containsKey ^java.util.Map pt-np-xlat-keys s)
+            (if (.contains ^java.util.Collection pt-np-xlat-keys s)
               (get pt-np-xlat-map s) s))
       fs)))

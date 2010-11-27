@@ -1,9 +1,10 @@
 (ns org.bituf.clj-miscutil
   "Assortment of functions for carrying out miscellaneous activities."
   (:import
+    (java.util    Collection)
+    (java.io      File PrintWriter StringWriter)
     (javax.naming Binding Context InitialContext
                   NameClassPair NamingEnumeration)
-    (java.io      PrintWriter StringWriter)
     (clojure.lang Reflector))
   (:require
     [clojure.pprint :as pp]
@@ -41,6 +42,67 @@
   (not (boolean? x)))
 
 
+;; ===== Pretty printing =====
+
+
+(defmacro with-stringwriter
+  "Create a StringWriter and make it available in a let binding; execute body
+  of code in the let context and finally return the string from the writer."
+  [s & body]
+  `(let [~s (StringWriter.)]
+     (do ~@body)
+     (.toString ~s)))
+
+
+(defmacro printwriter-str
+  "Capture the output to specified device by executing body of code and return
+  as a string."
+  [^PrintWriter out & body]
+  `(let [sw# (StringWriter.)
+         pw# (PrintWriter. sw#)]
+     (binding [~out pw#]
+       (do ~@body)
+       (.toString sw#))))
+
+
+(defmacro printwriter2-str
+  "Same as 'printwriter-str', but binds two vars.
+  See also: printwriter-str"
+  [^PrintWriter out1 out2 & body]
+  `(let [sw# (StringWriter.)
+         pw# (PrintWriter. sw#)]
+     (binding [~out1  pw#
+               ~out2 pw#]
+       (do ~@body)
+       (.toString sw#))))
+
+
+(defmacro out-str
+  "Capture the output to *out* by executing body of code and return as a string."
+  [& body]
+  `(printwriter-str *out* ~@body))
+
+
+(defmacro err-str
+  "Capture the output to *err* by executing body of code and return as a string."
+  [& body]
+  `(printwriter-str *err* ~@body))
+
+
+(defmacro out-err-str
+  "Capture the output to *out* and *err* by executing body of code and return as
+  a string."
+  [& body]
+  `(printwriter2-str *out* *err* ~@body))
+
+
+(defn pprint-str
+  "Pretty-print anything"
+  [whatever]
+  (with-stringwriter w
+    (pp/pprint whatever w)))
+
+
 ;; ===== Print tables =====
 
 (def *pt-column-delim* " | ")
@@ -54,9 +116,8 @@
   "Calculate width for a collection of data rows."
   [data-rows]
   (let [col-count  (count (first data-rows))
-        cols-width (atom
-                     (into []
-                       (take col-count (repeat 0))))]
+        cols-width (atom (into []
+                           (take col-count (repeat 0))))]
     (doseq [each-row data-rows]
       (let [each-cols-width (map #(count (in/xlat-np-chars (str %))) each-row)]
         (reset! cols-width
@@ -105,7 +166,7 @@
 
 (defn print-table-from-coll
   "Print data table from a collection of rows. Expected input is a collection
-  of equi-count collections.
+  of equi-count data cols (a list/vector each).
   Example:
     (print-table-from-coll [[1 2 3]
                             [4 5 6]])
@@ -119,19 +180,20 @@
 
 
 (defn print-table-with-header
-  "Print table with header columns (i.e. column titles).
+  "Print table with header columns (i.e. column titles). Accept collection of
+  equi-count data cols (a list/vector each).
   Example:
     (print-table-from-coll [[1 2 3]
                             [4 5 6]] [\"Q1\" \"Q2\" \"Q3\"])
     (print-table-from-coll [[\"James\" 2 3]
                             [\"Henry\" 5 6]]
                            [\"Name\" \"Days#\" \"Score\"] [10 4 4])"
-  ([data-rows header-cols]
+  ([header-cols data-rows]
     (let [all-rows  (cons header-cols data-rows)
           all-width (calc-width all-rows)]
       (print-table-with-header
-        data-rows header-cols all-width)))
-  ([data-rows header-cols cols-width]
+        header-cols data-rows all-width)))
+  ([header-cols data-rows cols-width]
     (let [sep-cols (map #(apply str (take % (repeat \-))) cols-width)
           all-rows (into [header-cols sep-cols] data-rows)]
       (print-table-from-coll all-rows cols-width))))
@@ -150,12 +212,12 @@
     (let [header-cols (keys (first data-map-rows))
           find-vals   (fn [m] (map #(m %) header-cols))
           data-rows   (map find-vals data-map-rows)]
-      (print-table-with-header data-rows header-cols)))
+      (print-table-with-header header-cols data-rows)))
   ([data-map-rows cols-width]
     (let [header-cols (keys (first data-map-rows))
           find-vals   (fn [m] (map #(m %) header-cols))
           data-rows   (map find-vals data-map-rows)]
-      (print-table-with-header data-rows header-cols cols-width))))
+      (print-table-with-header header-cols data-rows cols-width))))
 
 
 (defn print-table
@@ -163,72 +225,35 @@
   ([data-rows]
     (if (map? (first data-rows)) (print-table-from-maps data-rows)
       (print-table-from-coll data-rows)))
-  ([data-rows cols-width]
-    (if (map? (first data-rows)) (print-table-from-maps data-rows cols-width)
-      (print-table-from-coll data-rows cols-width))))
-
-
-;; ===== Pretty printing =====
-
-
-(defmacro with-stringwriter
-  "Create a StringWriter and make it available in a let binding; execute body
-  of code in the let context and finally return the string from the writer."
-  [s & body]
-  `(let [~s (StringWriter.)]
-     (do ~@body)
-     (.toString ~s)))
-
-
-(defmacro printwriter-str
-  "Capture the output to specified device by executing body of code and return
-  as a string."
-  [^PrintWriter out & body]
-  `(let [sw# (StringWriter.)
-         pw# (PrintWriter. sw#)]
-     (binding [~out pw#]
-       (do ~@body)
-       (.toString sw#))))
-
-
-(defmacro out-str
-  "Capture the output to *out* by executing body of code and return as a string"
-  [& body]
-  `(printwriter-str *out* ~@body))
-
-
-(defmacro err-str
-  "Capture the output to *err* by executing body of code and return as a string"
-  [& body]
-  `(printwriter-str *err* ~@body))
-
-
-(defn pprint-str
-  "Pretty-print anything"
-  [whatever]
-  (with-stringwriter w
-    (pp/pprint whatever w)))
+  ([header-cols data-rows]
+    (let [data-coll (if (map? (first data-rows)) (map vals data-rows)
+                      data-rows)]
+      (print-table-with-header header-cols data-coll)))
+  ([header-cols data-rows cols-width]
+    (let [data-coll (if (map? (first data-rows)) (map vals data-rows)
+                      data-rows)]
+      (print-table-with-header header-cols data-coll cols-width))))
 
 
 ;; ===== Var metadata  =====
 
 (defmacro var-name
-  "Return name of the given var."
+  "Return name of the given var as a string."
   [v]
   `(or
-     (try (:name (meta (resolve (quote ~v))))
+     (try (str (:name (meta (resolve (quote ~v)))))
        (catch Exception _# nil))
-     (try (:name (meta (var ~v)))
+     (try (str (:name (meta (var ~v))))
        (catch Exception _# nil))
      (str ~v)))
 
 
 (defn var-body
-  "Return the body of the var"
+  "Return the body of the var."
   [v]
   (or
-    (repl/source v)
-    (try (quote v)
+    (out-str (repl/source v))
+    (try (str (quote v))
       (catch Exception _# nil))))
 
 
@@ -255,6 +280,7 @@
 
 
 (defn value-and-type
+  "Return value and its type as a single printable string."
   [value]
   (if (nil? value) "<nil>"
     (format "%s (%s)" value (type value))))
@@ -342,6 +368,15 @@
   [x]
   (if (or (keyword? x) (symbol? x)) (name x)
     (str x)))
+
+
+(defn java-filename
+  "Accept path (of a file) as argument and return a uniform file name for all
+  operating systems."
+  [s]
+  (let [p (if (instance? File s) (.getAbsolutePath ^File s)
+            (str s))]
+    (.replace ^String p "\\" "/")))
 
 
 (defn as-vstr
@@ -463,6 +498,12 @@
       (= (as-string elem-type) (as-string (array-type obj))))))
 
 
+(defn not-array?
+  "Same as (not (array? obj)) or (not (array? obj elem-type))."
+  ([obj] (not (array? obj)))
+  ([obj elem-type] (not (array? obj elem-type))))
+
+
 ;; ===== includes? -- replacement for contains? =====
 
 (defn includes?
@@ -470,9 +511,18 @@
   too.
   See also: contains? (in clojure.core)"
   [coll needle]
-  (let [indexless-coll (if (or (vector? coll) (array? coll)) (as-set coll)
-                         coll)]
-    (contains? indexless-coll needle)))
+  ;; -- slower implementation commented out
+  ;;(let [indexless-coll (if (or (vector? coll) (array? coll)) (as-set coll)
+  ;;                       coll)]
+  ;;  (contains? indexless-coll needle))
+  (if (nil? coll) false
+    (.contains ^Collection coll needle)))
+
+
+(defn not-includes?
+  "Same as (not (includes? coll needle))."
+  [coll needle]
+  (not (includes? coll needle)))
 
 
 ;; ===== Argument/condition assertion =====
