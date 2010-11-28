@@ -1,7 +1,7 @@
 (ns org.bituf.clj-miscutil
   "Assortment of functions for carrying out miscellaneous activities."
   (:import
-    (java.util    Collection)
+    (java.util    Collection List Map)
     (java.io      File PrintWriter StringWriter)
     (javax.naming Binding Context InitialContext
                   NameClassPair NamingEnumeration)
@@ -905,6 +905,38 @@
 (defn k-to-getter [k] (k-to-methodname k ["get" "is"]))
 
 
+(defn ^List coll-as-string
+  "Convert each element in a collection to string and return a vector."
+  [ks]
+  (as-vector (map as-string ks)))
+
+
+(defn ^List coll-as-keys
+  "Convert each element in a collection to keyword and return a vector."
+  [ks]
+  (as-vector (map keyword ks)))
+
+
+(defn ^Map keys-to-str
+  "Given a map with every key a keyword, convert keys to strings.
+  Input: {:a 10 :b \"20\"}
+  Returns: {\"a\" 10 \"b\" \"20\"}"
+  [m]
+  (let [ks (keys m)
+        vs (vals m)]
+    (zipmap (coll-as-string ks) vs)))
+
+
+(defn ^Map str-to-keys
+  "Given a map with every key a string, convert keys to keywords.
+  Input: {\"a\" 10 \"b\" \"20\"}
+  Returns: {:a 10 :b \"20\"}"
+  [m]
+  (let [ks (keys m)
+        vs (vals m)]
+    (zipmap (coll-as-keys ks) vs)))
+
+
 ;; ===== Reflection (not recommended for performance-critical code) =====
 
 
@@ -1074,29 +1106,22 @@
     (zipmap ks vs)))
 
 
-(defn strkey-to-keyword
-  "Given a map with every key a string, convert keys to keywords.
-  Input: {\"a\" 10 \"b\" \"20\"}
-  Returns: {:a 10 :b \"20\"}"
-  [m]
-  (assert (map? m))
-  (into {} (map #(let [k (first %)]
-                   (assert (string? k))
-                   [(keyword k) (last %)]) (seq m))))
-
-
 (defn is-true?
   "Tell whether a given value is equivalent to true."
   [any]
-  (if (string? any)
-    (let [v (.toLowerCase ^String any)]
-      (or
-        (= "true" v)
-        (= "yes"  v)
-        (= "on"   v)))
-    (if (number? any)
-      (> any 0)
-      (true? any))))
+  (cond
+    (string? any)  (let [v (.toLowerCase ^String any)]
+                     (or
+                       (= "true" v)
+                       (= "yes"  v)
+                       (= "on"   v)))
+    (keyword? any) (let [v (keyword (.toLowerCase ^String (name any)))]
+                     (or
+                       (= :true v)
+                       (= :yes  v)
+                       (= :on   v)))
+    (number? any)  (> any 0)
+    :else (true? any)))
 
 
 ;; ===== JNDI functions (tree-printing not recommended for production use) =====

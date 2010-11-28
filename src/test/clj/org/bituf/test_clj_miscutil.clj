@@ -312,7 +312,15 @@
       (is (= (doall (map (getter-fn lst) [:first ; .getFirst() - returns 1
                                           :last  ; .getLast()  - returns 2
                                           ]))
-            [1 2])))))
+            [1 2])))
+    (testing "coll-as-string"
+      (is (= ["a" "b" "10"] (coll-as-string [:a "b" 10]))))
+    (testing "coll-as-keys"
+      (is (= [:a :b :c] (coll-as-keys ["a" "b" :c]))))
+    (testing "keys-to-str"
+      (is (= {"a" 10 "b" 20 "c" 30} (keys-to-str {:a 10 :b 20 :c 30}))))
+    (testing "str-to-keys"
+      (is (= {:a 10 :b 20 :c false} (str-to-keys {"a" 10 "b" 20 "c" false}))))))
 
 
 (deftest test-properties
@@ -323,17 +331,19 @@
                      [:property "b" "20"]
                      [:property "c" "true"]))
         pm (property-map ps)
-        km (strkey-to-keyword pm)]
+        km (str-to-keys pm)]
     (testing "property-map"
       (is (= pm {"a" "10"
                  "b" "20"
                  "c" "true"})))
-    (testing "strkey-to-keyword"
+    (testing "str-to-keys"
       (is (= km {:a "10"
                  :b "20"
                  :c "true"})))
     (testing "is-true?"
-      (is (is-true? (:c km))))))
+      (is (is-true? (:c km)))
+      (is (is-true? :True))
+      (is (is-true? 10)))))
 
 
 (deftest test-jndi
