@@ -1,8 +1,9 @@
 (ns org.bituf.clj-miscutil
   "Assortment of functions for carrying out miscellaneous activities."
   (:import
-    (java.util    Collection List Map)
-    (java.io      File PrintWriter StringWriter)
+    (java.io      File PrintWriter StringWriter InputStream)
+    (java.net     URL)
+    (java.util    Collection List Map Properties)
     (javax.naming Binding Context InitialContext
                   NameClassPair NamingEnumeration)
     (clojure.lang Reflector))
@@ -27,7 +28,7 @@
   (Long/toString (random-number) 36))
 
 
-;; ===== Boolean values ======
+;; ===== Type check =====
 
 
 (defn boolean?
@@ -40,6 +41,18 @@
   "Return true if given value is not a boolean, false otherwise."
   [x]
   (not (boolean? x)))
+
+
+(defn date?
+  "Return true if given value is a java.util.Date, false otherwise."
+  [d]
+  (instance? java.util.Date d))
+
+
+(defn not-date?
+  "Return true if given value is not a java.util.Date, false otherwise."
+  [d]
+  (not (date? d)))
 
 
 ;; ===== Pretty printing =====
@@ -1096,11 +1109,60 @@
         (into [] (concat args more-args))))))
 
 
+;; ===== File-reading from classpath =====
+
+(defn classpath-file-url
+  "Return URL object of a file in classpath. The filename must begin with a
+  slash.
+  Example:
+    (classpath-file-url \"/app-config.properties\")"
+  ^URL
+  [filepath]
+  (.getResource String filepath))
+
+
+(defn classpath-file-istream
+  "Return InputStream object for a file in classpath. The filename must begin
+  with a slash.
+  Example:
+    (classpath-file-istream \"/app-config.properties\")"
+  ^InputStream
+  [filepath]
+  (.getResourceAsStream String filepath))
+
+
+(defn classpath-file-reader
+  "Return reader object of a file in classpath. The filename must begin with a
+  slash.
+  Example:
+    (classpath-file-reader \"/app-config.properties\")"
+  [filepath]
+  (clojure.java.io/reader filepath))
+
+
+(defn slurp-from-classpath
+  "Like 'slurp', but reads the file from classpath instead. The filepath must
+  begin with a slash.
+  Example:
+    (slurp-from-classpath \"/db-config.properties\")"
+  [filepath & opts]
+  (apply slurp (classpath-file-url filepath) opts))
+
+
 ;; ===== Properties handling =====
+
+(defn load-properties
+  "Load properties from a given InputStream (or Reader) instance."
+  ^Properties
+  [^InputStream istream]
+  (let [p (Properties.)]
+    (.load p istream)
+    p))
+
 
 (defn property-map
   "Transform a given Properties instance to a map."
-  [^java.util.Properties properties]
+  [^Properties properties]
   (let [ks (into [] (.stringPropertyNames properties))
         vs (into [] (map #(.getProperty properties %) ks))]
     (zipmap ks vs)))

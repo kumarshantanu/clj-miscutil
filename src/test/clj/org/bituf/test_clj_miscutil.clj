@@ -20,11 +20,17 @@
     (is (not= (random-string) (random-string) (random-string)))))
 
 
-(deftest test-boolean
+(deftest test-type-check
   (testing "boolean?"
     (is (boolean? false)))
   (testing "not-boolean?"
-    (is (not-boolean? 55))))
+    (is (not-boolean? 55)))
+  (testing "date?"
+    (is (date? (java.util.Date.)) "Identify Date type correctly")
+    (is (not (date? "Hello")) "Return false for not a Date type"))
+  (testing "not-date?"
+    (is (not-date? 1000) "Detect a non-Date value")
+    (is (not (not-date? (java.util.Date.))))))
 
 
 (deftest test-pretty-printing
@@ -366,7 +372,7 @@
 
 (defn test-ns-hook []
   (test-random)
-  (test-boolean)
+  (test-type-check)
   (test-pretty-printing)
   (test-var-metadata)
   (test-exception-throwing)
