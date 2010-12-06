@@ -1,7 +1,7 @@
 (ns org.bituf.clj-miscutil
   "Assortment of functions for carrying out miscellaneous activities."
   (:import
-    (java.io      File PrintWriter StringWriter InputStream)
+    (java.io      File PrintWriter StringWriter InputStream Reader)
     (java.net     URL)
     (java.util    Collection List Map Properties)
     (javax.naming Binding Context InitialContext
@@ -1109,54 +1109,18 @@
         (into [] (concat args more-args))))))
 
 
-;; ===== File-reading from classpath =====
-
-(defn classpath-file-url
-  "Return URL object of a file in classpath. The filename must begin with a
-  slash.
-  Example:
-    (classpath-file-url \"/app-config.properties\")"
-  ^URL
-  [filepath]
-  (.getResource String filepath))
-
-
-(defn classpath-file-istream
-  "Return InputStream object for a file in classpath. The filename must begin
-  with a slash.
-  Example:
-    (classpath-file-istream \"/app-config.properties\")"
-  ^InputStream
-  [filepath]
-  (.getResourceAsStream String filepath))
-
-
-(defn classpath-file-reader
-  "Return reader object of a file in classpath. The filename must begin with a
-  slash.
-  Example:
-    (classpath-file-reader \"/app-config.properties\")"
-  [filepath]
-  (clojure.java.io/reader filepath))
-
-
-(defn slurp-from-classpath
-  "Like 'slurp', but reads the file from classpath instead. The filepath must
-  begin with a slash.
-  Example:
-    (slurp-from-classpath \"/db-config.properties\")"
-  [filepath & opts]
-  (apply slurp (classpath-file-url filepath) opts))
-
-
 ;; ===== Properties handling =====
 
 (defn load-properties
-  "Load properties from a given InputStream (or Reader) instance."
+  "Load properties from a given InputStream or Reader instance."
   ^Properties
-  [^InputStream istream]
+  [input]
   (let [p (Properties.)]
-    (.load p istream)
+    (cond
+      (instance? InputStream input) (.load p ^InputStream input)
+      (instance? Reader      input) (.load p ^Reader      input)
+      :else (illegal-arg "input" "java.io.InputStream or java.io.Reader"
+              (as-vstr (type input))))
     p))
 
 
