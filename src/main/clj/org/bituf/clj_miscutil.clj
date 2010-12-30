@@ -90,19 +90,13 @@
        (.toString sw#))))
 
 
-(defmacro out-str
-  "Capture the output to *out* by executing body of code and return as a string."
-  [& body]
-  `(printwriter-str *out* ~@body))
-
-
-(defmacro err-str
+(defmacro with-err-str
   "Capture the output to *err* by executing body of code and return as a string."
   [& body]
   `(printwriter-str *err* ~@body))
 
 
-(defmacro out-err-str
+(defmacro with-out-err-str
   "Capture the output to *out* and *err* by executing body of code and return as
   a string."
   [& body]
@@ -298,7 +292,7 @@
   "Return the body of the var."
   [v]
   (or
-    (out-str (repl/source v))
+    (with-out-str (repl/source v))
     (try (str (quote v))
       (catch Exception _# nil))))
 

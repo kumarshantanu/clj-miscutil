@@ -34,23 +34,21 @@
 
 
 (deftest test-pretty-printing
-  (testing "out-str"
-    (is (= "Hello" (out-str (print "Hello")))))
-  (testing "err-str"
-    (is (= "Hello" (err-str (binding [*out* *err*] (print "Hello")))))
-    (let [txt (out-err-str
+  (testing "with-err-str"
+    (is (= "Hello" (with-err-str (binding [*out* *err*] (print "Hello")))))
+    (let [txt (with-out-err-str
                 (! (/ 10 0)))
           ltx (.substring ^String txt 0 45)]
       (is (= ltx "java.lang.ArithmeticException: Divide by zero"))))
-  (testing "out-err-str"
-    (let [txt (out-err-str
+  (testing "with-out-err-str"
+    (let [txt (with-out-err-str
                 (print "Hello")
                 (! (/ 10 0)))
           ltx (.substring ^String txt 0 50)]
       (is (= ltx "Hellojava.lang.ArithmeticException: Divide by zero"))))
   (testing "pprint-str"
     (let [x (take 12 (iterate inc 0))]
-      (is (= (out-str (clojure.pprint/pprint x)) (pprint-str x))))))
+      (is (= (with-out-str (clojure.pprint/pprint x)) (pprint-str x))))))
 
 
 (deftest test-var-metadata
@@ -185,10 +183,10 @@
 
 (deftest test-stacktrace-printing
   (testing "print-exception-stacktrace"
-    (let [st (err-str (print-exception-stacktrace (NullPointerException.)))]
+    (let [st (with-err-str (print-exception-stacktrace (NullPointerException.)))]
       (is (and (string? st) (not-empty? st)))))
   (testing "!"
-    (let [st (err-str (! (/ 10 0)))]
+    (let [st (with-err-str (! (/ 10 0)))]
       (is (and (string? st) (not-empty? st))))))
 
 
