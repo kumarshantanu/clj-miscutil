@@ -196,7 +196,13 @@
     (is (thrown? IllegalArgumentException (verify empty? [10]))))
   (testing "assert-type"
     (is (= nil (assert-type "aa" String)))
-    (is (thrown? AssertionError (assert-type true String)))))
+    (is (thrown? AssertionError (assert-type true String))))
+  (testing "echo"
+    (let [m {:a 10 :b 20}
+          r (echo m)
+          s (with-out-str (echo m))]
+      (is (= r m) "Return value should be same as the argument")
+      (is (= s "{:a 10, :b 20}\n") "Output of 'pprint'"))))
 
 
 (deftest test-type-annotation

@@ -772,6 +772,13 @@
                                 (type item)))))))
 
 
+(defn echo
+  "Print argument using 'pprint' and then return it."
+  [x]
+  (pp/pprint x)
+  x)
+
+
 ;; ===== Type annotation =====
 
 (defn implied-types
