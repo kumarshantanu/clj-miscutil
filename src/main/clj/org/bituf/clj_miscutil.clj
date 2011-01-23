@@ -133,16 +133,20 @@
 
 ;; ===== Print tables =====
 
-(def ^{:doc "Delimiter string to be printed between columns"}
+(def ^{:doc "Delimiter string to be printed between columns"
+       :dynamic true}
       *pt-column-delim* " | ")
 
-(def ^{:doc "Minimum width for each column; effective only when computing width"}
+(def ^{:doc "Minimum width for each column; effective only when computing width"
+       :dynamic true}
       *pt-min-cols-width* (repeat 2))
 
-(def ^{:doc "Maximum width for each column; effective only when computing width"}
+(def ^{:doc "Maximum width for each column; effective only when computing width"
+       :dynamic true}
       *pt-max-cols-width* (repeat 200))
 
-(def ^{:doc "Default width for each column; non-positive number implies COMPUTE"}
+(def ^{:doc "Default width for each column; non-positive number implies COMPUTE"
+       :dynamic true}
       *pt-cols-width* (repeat -1))
 
 
@@ -395,6 +399,16 @@
   `(try [(do ~@body) nil]
      (catch Exception e#
        [nil e#])))
+
+
+(defmacro filter-exception
+  "Execute body of code and in case of an exception, ignore it if (pred ex)
+  returns false and return nil."
+  [pred & body]
+  `(try ~@body
+     (catch Exception e#
+       (when (~pred e#)
+         (throw e#)))))
 
 
 ;; ===== Type conversion =====

@@ -4,11 +4,13 @@
 
 ## 0.2 / 2010-Nov-??
 
+* Clojure 1.3 compatibility
 * random values
 * boolean values
 * table printing
 * var meta data
 * constructing exceptions
+* non-breaking error handling (exception catching)
 * type conversion/wrapping
 * more "not" prefixed functions
 * array types

@@ -7,20 +7,24 @@
 (def ^{:doc "Random seed" :tag Random} random-seed (Random.))
 
 
-(def ^{:doc "Flag to determine whether arguments/conditions are to be asserted"}
+(def ^{:doc "Flag to determine whether arguments/conditions are to be asserted"
+       :dynamic true}
       *assert-cond* true) ; true: development/testing, false: production
 
 
 (def ^{:doc "Typically bound to javax.naming.Context"
-       :tag Context}
+       :tag Context
+       :dynamic true}
       *root-context* nil)
 
 
-(def ^{:doc "Typically bound to an integer wrapped in an atom, e.g. (atom 0)"}
+(def ^{:doc "Typically bound to an integer wrapped in an atom, e.g. (atom 0)"
+       :dynamic true}
       *indent* nil)
 
 
-(def ^{:doc "The 'types' keyword"} types-keyword (keyword (str *ns* ".types")))
+(def ^{:doc "The 'types' keyword"}
+      types-keyword (keyword (str *ns* ".types")))
 
 
 (def ^{:doc
@@ -28,7 +32,8 @@
   Example:
     {:employee [:salaried :person] ; 'employee' implies 'salaried' and 'person'
      :salaried [:person]           ; 'salaried' implies 'person'
-     }"}
+     }"
+  :dynamic true}
       *implied-types* {})
 
 

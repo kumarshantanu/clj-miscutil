@@ -92,7 +92,14 @@
   (testing "maybe"
     (is (= [10 nil] (maybe 10)))
     (let [[_ e] (maybe (throw (NullPointerException.)))]
-      (is (instance? NullPointerException e)))))
+      (is (instance? NullPointerException e))))
+  (testing "filter-exception"
+    (is (= 10 (filter-exception (constantly true) 10)))
+    (is (= nil (filter-exception #(instance? IllegalStateException %)
+                 (throw (IllegalArgumentException.)))))
+    (is (thrown? IllegalArgumentException
+          (filter-exception #(instance? IllegalArgumentException %)
+            (throw (IllegalArgumentException.)))))))
 
 
 (deftest test-type-conversion
