@@ -301,7 +301,7 @@
       (catch Exception _# nil))))
 
 
-;; ===== Exceptions =====
+;; ===== Throwing exceptions =====
 
 (defn illegal-arg-withcause
   "Throw IllegalArgumentException with specified arguments. Use this when you
@@ -403,12 +403,56 @@
 
 (defmacro filter-exception
   "Execute body of code and in case of an exception, ignore it if (pred ex)
-  returns false and return nil."
+  returns false (i.e. rethrow if true) and return nil."
   [pred & body]
   `(try ~@body
      (catch Exception e#
        (when (~pred e#)
          (throw e#)))))
+
+
+(defmacro with-exceptions
+  "Execute body of code in the context of exceptions to be re-thrown or ignored.
+  Args:
+    throw-exceptions - List of exceptions that should be re-thrown
+    leave-exceptions - List of exceptions that should be suppressed
+  Note: 'throw-exceptions' is given preference over 'leave-exceptions'
+  Example usage:
+    ;; ignore all runtime exceptions except
+    ;; IllegalArgumentException and IllegalStateException
+    (with-exceptions [IllegalArgumentException IllegalStateException] [RuntimeException]
+      ...)"
+  [throw-exceptions leave-exceptions & body]
+  `(filter-exception (fn [ex#]
+                       (cond
+                         (some #(instance? % ex#) ~throw-exceptions) true
+                         (some #(instance? % ex#) ~leave-exceptions) false
+                         :else true))
+     ~@body))
+
+
+(defmacro with-safe-open
+  "bindings => [name init ...]
+
+  Evaluates body in a try expression with names bound to the values
+  of the inits, and a finally clause that calls (.close name) on each
+  name in reverse order.
+  (This is only a modified version of clojure.core/with-open where any
+  exception arising due to closing of resources is ignored.)"
+  [bindings & body]
+  (assert (vector? bindings))       ; a vector for its binding
+  (assert (even? (count bindings))) ; an even number of forms in binding vector
+  (cond
+    (= (count bindings) 0) `(do ~@body)
+    (symbol? (bindings 0)) `(let ~(subvec bindings 0 2)
+                              (try
+                                (with-open ~(subvec bindings 2) ~@body)
+                                (finally
+                                  (try
+                                    (. ~(bindings 0) close)
+                                    (catch Exception _#)))))
+    :else (throw (IllegalArgumentException.
+                   "with-safe-open only allows Symbols in bindings"))))
 
 
 ;; ===== Type conversion =====

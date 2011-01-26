@@ -99,7 +99,24 @@
                  (throw (IllegalArgumentException.)))))
     (is (thrown? IllegalArgumentException
           (filter-exception #(instance? IllegalArgumentException %)
-            (throw (IllegalArgumentException.)))))))
+            (throw (IllegalArgumentException.))))))
+  (testing "with-exceptions"
+    (is (thrown? IllegalArgumentException
+          (with-exceptions [IllegalArgumentException] [Exception]
+            (throw (IllegalArgumentException.)))))
+    (is (nil? (with-exceptions [IllegalArgumentException] [Exception]
+                10
+                (throw (NullPointerException.)))))
+    (is (= 10 (with-exceptions [] []
+                10))))
+  (testing "with-safe-open"
+    (let [close-ex (proxy [java.io.Closeable] []
+                     (close [] (throw (IllegalStateException.))))]
+      (is (thrown? IllegalStateException
+            (with-open [c close-ex]
+              10)))
+      (is (= 10 (with-safe-open [c close-ex]
+                  10))))))
 
 
 (deftest test-type-conversion
