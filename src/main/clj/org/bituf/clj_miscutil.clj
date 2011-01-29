@@ -831,6 +831,20 @@
                     ")"))))
 
 
+(defn verify-opt
+  "Verify that the optional arguments (keys) are from a known set of keywords."
+  [known-coll input-coll]
+  (let [known-set (as-set known-coll)]
+    (doseq [each (if (map? input-coll)
+                   (keys input-coll)
+                   input-coll)]
+      (when-not (contains? known-set each)
+        (throw (IllegalArgumentException.
+                 (format "Invalid optional argument key %s, Allowed keys: %s"
+                   each
+                   (with-out-str (pp/pprint known-set)))))))))
+
+
 (defn assert-type
   "Assert the type of a given value.
   Example:
