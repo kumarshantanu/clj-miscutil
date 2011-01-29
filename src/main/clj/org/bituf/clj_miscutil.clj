@@ -13,6 +13,12 @@
     [org.bituf.clj-miscutil.internal :as in]))
 
 
+;; ===== Declarations ======
+
+
+(declare as-vstr)
+
+
 ;; ===== Random values ======
 
 
@@ -299,6 +305,15 @@
     (with-out-str (repl/source v))
     (try (str (quote v))
       (catch Exception _# nil))))
+
+
+(defn var-dump
+  "Return type and value of the var in string form for diagnosis."
+  [v]
+  (format "(%s) %s"
+    (as-vstr (type v))
+    (with-out-str
+      (pp/pprint v))))
 
 
 ;; ===== Throwing exceptions =====
@@ -812,7 +827,7 @@
                          (try (:name (meta (resolve (quote ~f?))))
                            (catch Exception _# nil))
                          (meta ~f?))
-        ", Found: " (comma-sep-str (map #(as-vstr (type %)) args#))
+        ", Found: " (comma-sep-str (map #(var-dump %) args#))
                     ")"))))
 
 
