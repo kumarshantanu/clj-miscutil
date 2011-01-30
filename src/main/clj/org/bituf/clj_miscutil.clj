@@ -832,7 +832,8 @@
 
 
 (defn verify-opt
-  "Verify that the optional arguments (keys) are from a known set of keywords."
+  "Verify that the optional arguments (keys) are from a known set of keywords.
+  Return true if constraint satisfied, throw IllegalArgumentException otherwise."
   [known-coll input-coll]
   (let [known-set (as-set known-coll)]
     (doseq [each (if (map? input-coll)
@@ -842,7 +843,8 @@
         (throw (IllegalArgumentException.
                  (format "Invalid optional argument key %s, Allowed keys: %s"
                    each
-                   (with-out-str (pp/pprint known-set)))))))))
+                   (with-out-str (pp/pprint known-set)))))))
+    true))
 
 
 (defn assert-type

@@ -220,7 +220,7 @@
     (is (thrown? IllegalArgumentException (verify empty? [10]))))
   (testing "verify-opt"
     (is (thrown? IllegalArgumentException (verify-opt [:a :b] [:c :d])))
-    (is (nil? (verify-opt [:a :b] [:a]))))
+    (is (true? (verify-opt [:a :b] [:a]))))
   (testing "assert-type"
     (is (= nil (assert-type "aa" String)))
     (is (thrown? AssertionError (assert-type true String))))
