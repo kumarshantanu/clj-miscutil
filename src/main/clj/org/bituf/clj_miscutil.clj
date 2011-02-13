@@ -504,17 +504,21 @@
 
 
 (defn as-keys
-  "Return keys if coll is a map, just coll otherwise."
-  [coll]
-  (if (map? coll) (into [] (keys coll))
-    coll))
+  "Return keys if coll is a map, 'not-map' otherwise."
+  ([coll not-map]
+    (if (map? coll) (into [] (keys coll))
+      not-map))
+  ([coll]
+    (as-keys coll coll)))
 
 
 (defn as-vals
-  "Return vals if coll is a map, just coll otherwise."
-  [coll]
-  (if (map? coll) (into [] (vals coll))
-    coll))
+  "Return vals if coll is a map, 'not-map' otherwise."
+  ([coll not-map]
+    (if (map? coll) (into [] (vals coll))
+      not-map))
+  ([coll]
+    (as-vals coll coll)))
 
 
 (defn as-vector

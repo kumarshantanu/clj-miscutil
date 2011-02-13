@@ -141,10 +141,12 @@
         {10 "10", nil "<nil>", "hello" "hello", :kw "kw"}))
     (testing "as-keys"
       (testall as-keys
-        {{:a 10 :b 20} [:a :b], [:b :c] [:b :c]}))
+        {{:a 10 :b 20} [:a :b], [:b :c] [:b :c]})
+      (is (= 30 (as-keys [:a 20] 30))))
     (testing "as-vals"
       (testall as-vals
-        {{:a 10 :b 20} [10 20], [:b :c] [:b :c]}))
+        {{:a 10 :b 20} [10 20], [:b :c] [:b :c]})
+      (is (= 33 (as-vals [:a 10] 33))))
     (testing "as-vector"
       (testall as-vector
         {10 [10], [20] [20], nil [], '(30) [30], {:k 40} [40]}))
