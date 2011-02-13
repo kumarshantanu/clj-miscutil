@@ -139,6 +139,12 @@
     (testing "as-vstr"
       (testall as-vstr
         {10 "10", nil "<nil>", "hello" "hello", :kw "kw"}))
+    (testing "as-keys"
+      (testall as-keys
+        {{:a 10 :b 20} [:a :b], [:b :c] [:b :c]}))
+    (testing "as-vals"
+      (testall as-vals
+        {{:a 10 :b 20} [10 20], [:b :c] [:b :c]}))
     (testing "as-vector"
       (testall as-vector
         {10 [10], [20] [20], nil [], '(30) [30], {:k 40} [40]}))

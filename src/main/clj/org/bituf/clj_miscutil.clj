@@ -503,6 +503,20 @@
   (if-let [y x] (as-string y) "<nil>"))
 
 
+(defn as-keys
+  "Return keys if coll is a map, just coll otherwise."
+  [coll]
+  (if (map? coll) (into [] (keys coll))
+    coll))
+
+
+(defn as-vals
+  "Return vals if coll is a map, just coll otherwise."
+  [coll]
+  (if (map? coll) (into [] (vals coll))
+    coll))
+
+
 (defn as-vector
   "Convert/wrap given argument as a vector."
   [anything]
