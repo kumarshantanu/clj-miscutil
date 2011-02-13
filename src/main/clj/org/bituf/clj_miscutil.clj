@@ -592,7 +592,23 @@
 (defn not-zero?             [x] (not (zero?             x)))
 
 
+;; ===== Maps Transformation =====
+
+
+(defn map-keys
+  "Given a map m, apply f (takes one arg) to each key and return a new map."
+  [f m]
+  (zipmap (map f (keys m)) (vals m)))
+
+
+(defn map-vals
+  "Given a map m, apply f (takes one arg) to each val and return a new map."
+  [f m]
+  (zipmap (keys m) (map f (vals m))))
+
+
 ;; ===== Array types =====
+
 
 (defn array-type
   "Return array type (class object) if given object is an array, nil otherwise."
