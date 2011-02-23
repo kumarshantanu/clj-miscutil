@@ -22,7 +22,10 @@
 
 (deftest test-random
   (testing "random-number"
-    (is (not= (random-number) (random-number) (random-number))))
+    (is (not= (random-number) (random-number) (random-number)))
+    (let [ms 10 mx 20 r (random-number ms mx)]
+      (is (>= r ms))
+      (is (<= r mx))))
   (testing "random-string"
     (is (not= (random-string) (random-string) (random-string)))
     (let [x (random-string 10)

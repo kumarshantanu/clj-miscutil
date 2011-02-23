@@ -23,9 +23,16 @@
 
 
 (defn random-number
-  "Generate a random number"
-  []
-  (Math/abs (.nextLong in/random-seed)))
+  "Generate a random number. If a min-value/max-value range is specified a
+  random double-precision number from that range is returned."
+  ([]
+    (Math/abs (.nextLong in/random-seed)))
+  ([min-value max-value] {:post [(number? %)]
+                          :pre  [(number? min-value)
+                                 (number? max-value)
+                                 (>= max-value min-value)]}
+    (let [diff (- max-value min-value)]
+      (+ min-value (* (Math/random) diff)))))
 
 
 (defn random-string
