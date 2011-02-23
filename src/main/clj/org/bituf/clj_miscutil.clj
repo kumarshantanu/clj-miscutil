@@ -33,7 +33,7 @@
   ([] {:post [(string? %)]}
     (Long/toString (random-number) 36))
   ([len] {:post [(string? %)]
-          :pre  [(number? len)]}
+          :pre  [(pos? len)]}
     (let [f (fn thisfn []
               (cons (seq (random-string)) (lazy-seq (thisfn))))]
       (apply str (take len (flatten (f)))))))
