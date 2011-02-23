@@ -29,9 +29,14 @@
 
 
 (defn random-string
-  "Generate a random string"
-  []
-  (Long/toString (random-number) 36))
+  "Generate a random string. Return a string of len count if specified."
+  ([] {:post [(string? %)]}
+    (Long/toString (random-number) 36))
+  ([len] {:post [(string? %)]
+          :pre  [(number? len)]}
+    (let [f (fn thisfn []
+              (cons (seq (random-string)) (lazy-seq (thisfn))))]
+      (apply str (take len (flatten (f)))))))
 
 
 ;; ===== Type check =====

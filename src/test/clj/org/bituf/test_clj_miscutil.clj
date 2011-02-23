@@ -24,7 +24,14 @@
   (testing "random-number"
     (is (not= (random-number) (random-number) (random-number))))
   (testing "random-string"
-    (is (not= (random-string) (random-string) (random-string)))))
+    (is (not= (random-string) (random-string) (random-string)))
+    (let [x (random-string 10)
+          y (random-string 20)
+          z (random-string 30)]
+      (is (= 10 (count x)))
+      (is (= 20 (count y)))
+      (is (= 30 (count z)))
+      (is (not= x y z)))))
 
 
 (deftest test-type-check
