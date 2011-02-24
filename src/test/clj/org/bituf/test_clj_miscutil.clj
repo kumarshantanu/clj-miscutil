@@ -89,30 +89,26 @@
 
 
 (deftest test-exception-throwing
+  (testing "val-dump"
+    (is (= "(class java.lang.Integer) 45\n" (val-dump 45)))
+    (is (= "<nil>\n" (val-dump nil))))
   (testing "illegal-arg"
-    (is (thrown? IllegalArgumentException
-          (illegal-arg "reason"))))
-  (testing "illegal-arg-withcause"
-    (is (thrown? IllegalArgumentException
-          (illegal-arg-withcause (NullPointerException.) "Null value"))))
-  (testing "value-and-type"
-    (is (= "45 (class java.lang.Integer)" (value-and-type 45)))
-    (is (= "<nil>" (value-and-type nil))))
-  (testing "illegal-arg-value"
-    (is (thrown? IllegalArgumentException
-          (illegal-arg-value "reason"))))
+    (is (thrown? IllegalArgumentException (illegal-arg "reason"))))
+  (testing "illegal-arg-wrap"
+    (is (thrown? IllegalArgumentException (illegal-arg-wrap
+                                            (NullPointerException.) "Null value"))))
+  (testing "illegal-argval"
+    (is (thrown? IllegalArgumentException (illegal-argval "reason"))))
   (testing "illegal-state"
-    (is (thrown? IllegalStateException
-          (illegal-state "reason"))))
-  (testing "illegal-state-withcause"
-    (is (thrown? IllegalStateException
-          (illegal-state-withcause (NullPointerException.) "Null value"))))
+    (is (thrown? IllegalStateException    (illegal-state "reason"))))
+  (testing "illegal-state-wrap"
+    (is (thrown? IllegalStateException    (illegal-state-wrap
+                                            (NullPointerException.) "Null value"))))
   (testing "unsupported-op"
-    (is (thrown? UnsupportedOperationException
-          (unsupported-op "reason"))))
-  (testing "unsupported-op-withcause"
-    (is (thrown? UnsupportedOperationException
-          (unsupported-op-withcause (NullPointerException.) "Null value")))))
+    (is (thrown? UnsupportedOperationException (unsupported-op "reason"))))
+  (testing "unsupported-op-wrap"
+    (is (thrown? UnsupportedOperationException (unsupported-op-wrap
+                                                 (NullPointerException.) "Null value")))))
 
 
 (deftest test-exception-catching

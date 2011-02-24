@@ -332,21 +332,23 @@
       (catch Exception _# nil))))
 
 
+;; ===== Throwing exceptions =====
+
 (defn val-dump
   "Return type and value of v in string form for diagnosis."
   [v]
-  (format "(%s) %s"
-    (as-vstr (type v))
-    (with-out-str
-      (pp/pprint v))))
+  (if (nil? v) "<nil>\n"
+    (format "(%s) %s"
+      (as-vstr (type v))
+      (with-out-str
+        (pp/pprint v)))))
 
 
-;; ===== Throwing exceptions =====
-
-(defn illegal-arg-withcause
+(defn illegal-arg-wrap
   "Throw IllegalArgumentException with specified arguments. Use this when you
    encounter bad/invalid parameters due to another exception."
-  [^Throwable reason & more]
+  [^Throwable t ^String reason & more] {:pre [(instance? Throwable t)
+                                              (string? reason)]}
     (if (empty? more)
       (throw (IllegalArgumentException. reason))
       (throw (IllegalArgumentException. ^String (apply str more) reason))))
@@ -355,32 +357,24 @@
 (defn illegal-arg
   "Throw IllegalArgumentException with specified arguments. Use this when you
    encounter bad/invalid parameters."
-  [^String reason & more]
+  [^String reason & more] {:pre [(string? reason)]}
   (if (instance? Throwable reason)
-    ;; then
-    (apply illegal-arg-withcause reason more)
-    ;; else
+    (apply illegal-arg-wrap reason more)
     (throw (IllegalArgumentException. ^String (apply str reason more)))))
 
 
-(defn value-and-type
-  "Return value and its type as a single printable string."
-  [value]
-  (if (nil? value) "<nil>"
-    (format "%s (%s)" value (type value))))
-
-
-(defn illegal-arg-value
+(defn illegal-argval
   "Construct IllegalArgumentException for unmatched argument value"
   [arg-name expected found-value]
-  (illegal-arg (format "Invalid argument '%s' - Expected: %s, Found: %s (%s)"
-                 arg-name expected (value-and-type found-value))))
+  (illegal-arg (format "Invalid argument '%s' - Expected: %s, Found: %s"
+                 arg-name expected (val-dump found-value))))
 
 
-(defn illegal-state-withcause
+(defn illegal-state-wrap
   "Throw IllegalStateException with specified arguments. Use this when you
    encounter bad/invalid state while running the program."
-  [^Throwable reason & more]
+  [^Throwable t ^String reason & more] {:pre [(instance? Throwable t)
+                                              (string? reason)]}
   (if (empty? more)
     (throw (IllegalStateException. reason))
     (throw (IllegalStateException. ^String (apply str more) reason))))
@@ -389,18 +383,17 @@
 (defn illegal-state
   "Throw IllegalStateException with specified arguments. Use this when you
    encounter bad/invalid state while running the program."
-  [^String reason & more]
+  [^String reason & more] {:pre [(string? reason)]}
   (if (instance? Throwable reason)
-    ;; then
-    (apply illegal-state-withcause reason more)
-    ;; else
+    (apply illegal-state-wrap reason more)
     (throw (IllegalStateException. ^String (apply str reason more)))))
 
 
-(defn unsupported-op-withcause
+(defn unsupported-op-wrap
   "Throw UnsupportedOperationException with specified arguments. Use this when
   you do not support an operation due to an underlying exception."
-  [^Throwable reason & more]
+  [^Throwable t ^String reason & more] {:pre [(instance? Throwable t)
+                                              (string? reason)]}
   (if (empty? more)
     (throw (UnsupportedOperationException. reason))
     (throw (UnsupportedOperationException. ^String (apply str more) reason))))
@@ -409,12 +402,8 @@
 (defn unsupported-op
   "Throw UnsupportedOperationException with specified arguments. Use this when
   you do not support an operation."
-  [^String reason & more]
-  (if (instance? Throwable reason)
-    ;; then
-    (apply unsupported-op-withcause reason more)
-    ;; else
-    (throw (UnsupportedOperationException. ^String (apply str reason more)))))
+  [^String reason & more] {:pre [(string? reason)]}
+  (throw (UnsupportedOperationException. ^String (apply str reason more))))
 
 
 ;; ===== Non-breaking error handling =====
@@ -886,7 +875,7 @@
                          (try (:name (meta (resolve (quote ~f?))))
                            (catch Exception _# nil))
                          (meta ~f?))
-        ", Found: " (comma-sep-str (map #(var-dump %) args#))
+        ", Found: " (comma-sep-str (map #(val-dump %) args#))
                     ")"))))
 
 
