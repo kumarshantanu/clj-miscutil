@@ -332,8 +332,8 @@
       (catch Exception _# nil))))
 
 
-(defn var-dump
-  "Return type and value of the var in string form for diagnosis."
+(defn val-dump
+  "Return type and value of v in string form for diagnosis."
   [v]
   (format "(%s) %s"
     (as-vstr (type v))
