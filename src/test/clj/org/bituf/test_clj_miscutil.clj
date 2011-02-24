@@ -25,7 +25,17 @@
     (is (not= (random-number) (random-number) (random-number)))
     (let [ms 10 mx 20 r (random-number ms mx)]
       (is (>= r ms))
-      (is (<= r mx))))
+      (is (< r mx))))
+  (testing "random-charseq"
+    (is (not= (take 5 (random-charseq)) (take 5 (random-charseq))
+          (take 5 (random-charseq))))
+    (is (seq? (random-charseq)))
+    (let [x (random-charseq 10)
+          y (random-charseq 20)
+          z (random-charseq 30)]
+      (is (= 10 (count x))) (is (seq? x))
+      (is (= 20 (count y))) (is (seq? y))
+      (is (= 30 (count z))) (is (seq? z))))
   (testing "random-string"
     (is (not= (random-string) (random-string) (random-string)))
     (let [x (random-string 10)

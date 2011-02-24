@@ -24,7 +24,8 @@
 
 (defn random-number
   "Generate a random number. If a min-value/max-value range is specified a
-  random double-precision number from that range is returned."
+  random double-precision number from that range is returned. Note that
+  min-value is inclusive and max-value is exclusive."
   ([]
     (Math/abs (.nextLong in/random-seed)))
   ([min-value max-value] {:post [(number? %)]
@@ -35,15 +36,27 @@
       (+ min-value (* (Math/random) diff)))))
 
 
+(declare random-string)
+
+
+(defn random-charseq
+  "Return a lazy (infinite!, or length n if supplied) sequence of random
+  alphanumeric characters."
+  ([] {:post [(seq? %)]}
+    (let [f (fn thisfn []
+              (cons (seq (random-string)) (lazy-seq (thisfn))))]
+      (flatten (f))))
+  ([n] {:pre [pos? n]}
+    (take n (random-charseq))))
+
+
 (defn random-string
-  "Generate a random string. Return a string of len count if specified."
+  "Generate a random string. Return a string of len characters if specified."
   ([] {:post [(string? %)]}
     (Long/toString (random-number) 36))
   ([len] {:post [(string? %)]
           :pre  [(pos? len)]}
-    (let [f (fn thisfn []
-              (cons (seq (random-string)) (lazy-seq (thisfn))))]
-      (apply str (take len (flatten (f)))))))
+    (apply str (random-charseq len))))
 
 
 ;; ===== Type check =====
