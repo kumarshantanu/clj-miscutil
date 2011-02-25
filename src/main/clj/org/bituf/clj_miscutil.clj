@@ -797,6 +797,10 @@
 ;; ===== Stack trace and Exceptions =====
 
 
+(def ^{:doc "Flag: Whether include IDE reference in stack trace dump"
+       :dynamic true} *show-ide-reference* false)
+
+
 (defn stacktrace-rows
   "Given an array or collection of StackTraceElement objects, return a vector
   of [file-name line-number class-name method-name ide-reference] objects. The
@@ -807,8 +811,12 @@
                 method-name (or (.getMethodName ^StackTraceElement %) "")
                 file-name   (or (.getFileName   ^StackTraceElement %) "")
                 line-number (.getLineNumber ^StackTraceElement %)]
-            [file-name line-number class-name method-name
-             (str "at " class-name "(" file-name ":" line-number ")")])
+            (if *show-ide-reference*
+              ;; then
+              [file-name line-number class-name method-name
+               (str "at " class-name "(" file-name ":" line-number ")")]
+              ;; else
+              [file-name line-number class-name method-name]))
       (into [] stack-trace)))
   ([]
     (stacktrace-rows (.getStackTrace (Thread/currentThread)))))
@@ -844,7 +852,9 @@
   See also: print-stacktrace"
   [& stacktrace-rows]
   (print-table-with-header
-    ["File" "Line#" "Class" "Method" "IDE Reference"]
+    (if *show-ide-reference*
+      ["File" "Line#" "Class" "Method" "IDE Reference"]
+      ["File" "Line#" "Class" "Method"])
     (first (filter not-empty? stacktrace-rows))))
 
 
@@ -910,6 +920,15 @@
      (catch Exception e#
        (print-exception-stacktrace e#)
        (.printStackTrace e#))))
+
+
+(defmacro !!
+  "Execute body of code using ! operator with *show-ide-reference* set to true.
+  In other words, print friendly stack trace but also include IDE reference so
+  that files are clickable in an IDE."
+  [& body]
+  `(binding [*show-ide-reference* true]
+     (! ~@body)))
 
 
 ;; ===== Assertion helpers =====
