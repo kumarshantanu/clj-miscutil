@@ -587,6 +587,49 @@
             (type coll) ": " (as-vstr coll)))))))
 
 
+(defn coerce
+  "Coerce x using f. Return nil if f throws exception."
+  [f x]
+  (let [s (as-string (first (as-vector x)))]
+    (maybe-ret (f s))))
+
+
+(defn ^Boolean as-boolean
+  "Coerce any value to Boolean. Return nil if it cannot be."
+  [x]
+  (coerce #(Boolean/parseBoolean %) x))
+
+
+(defn ^Short as-short
+  "Coerce any value to short integer. Return nil if it cannot be."
+  [x]
+  (coerce #(Short/parseShort %) x))
+
+
+(defn ^Integer as-integer
+  "Coerce any value to integer. Return nil if it cannot be."
+  [x]
+  (coerce #(Integer/parseInt %) x))
+
+
+(defn ^Long as-long
+  "Coerce any value to long. Return nil if it cannot be."
+  [x]
+  (coerce #(Long/parseLong %) x))
+
+
+(defn ^Float as-float
+  "Coerce any value to float. Return nil if it cannot be."
+  [x]
+  (coerce #(Float/parseFloat %) x))
+
+
+(defn ^Double as-double
+  "Coerce any value to double-precision number. Return nil if it cannot be."
+  [x]
+  (coerce #(Double/parseDouble %) x))
+
+
 ;; ===== "not" stripped functions =====
 
 (defn any?                  [x] (not (not-any?          x)))

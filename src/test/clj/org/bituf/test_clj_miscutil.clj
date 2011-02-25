@@ -180,7 +180,25 @@
       (is (= (as-map [10 20 30 40]) {10 20 30 40}))
       (is (= (as-map {10 20}) {10 20}))
       (is (thrown? IllegalArgumentException
-            (as-map 10))))))
+            (as-map 10))))
+    (testing "as-boolean"
+      (testall as-boolean
+        {"true" true "yes" false 45 false nil false (java.util.Date.) false}))
+    (testing "as-short"
+      (testall as-short
+        {"10" (short 10) 20 (short 20) nil nil "ab" nil [29] (short 29) {:v 93} (short 93)}))
+    (testing "as-integer"
+      (testall as-integer
+        {"10" 10 20 20 nil nil "ab" nil [29] 29 {:v 93} 93}))
+    (testing "as-long"
+      (testall as-long
+        {"10" 10 20 20 nil nil "ab" nil [29] 29 {:v 93} 93}))
+    (testing "as-float"
+      (testall as-float
+        {"10" 10 "45.44" (float 45.44) 20 20 nil nil "ab" nil [29] 29 {:v 93} 93}))
+    (testing "as-double"
+      (testall as-double
+        {"10" 10 20 20 "12.34" 12.34 nil nil "ab" nil [29] 29 {:v 93} 93}))))
 
 
 (deftest test-not-prefixed
