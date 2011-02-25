@@ -109,29 +109,10 @@
        (.toString sw#))))
 
 
-(defmacro printwriter2-str
-  "Same as 'printwriter-str', but binds two vars.
-  See also: printwriter-str"
-  [^PrintWriter out1 out2 & body]
-  `(let [sw# (StringWriter.)
-         pw# (PrintWriter. sw#)]
-     (binding [~out1  pw#
-               ~out2 pw#]
-       (do ~@body)
-       (.toString sw#))))
-
-
 (defmacro with-err-str
   "Capture the output to *err* by executing body of code and return as a string."
   [& body]
   `(printwriter-str *err* ~@body))
-
-
-(defmacro with-out-err-str
-  "Capture the output to *out* and *err* by executing body of code and return as
-  a string."
-  [& body]
-  `(printwriter2-str *out* *err* ~@body))
 
 
 (defn pprint-str
@@ -857,7 +838,7 @@
           (print-stacktrace (.getStackTrace th))
           (catch Exception e
             (println "Error while printing stack-trace: " e)
-            (.printStackTrace e)))
+            (.printStackTrace e ^PrintWriter *out*)))
         (let [cause (.getCause th)]
           (when (not-nil? cause)
             (println "Caused by: " (str cause))
@@ -874,7 +855,7 @@
   `(try ~@body
      (catch Exception e#
        (print-exception-stacktrace e#)
-       (.printStackTrace e#))))
+       (.printStackTrace e# ^PrintWriter *err*))))
 
 
 (defmacro !!

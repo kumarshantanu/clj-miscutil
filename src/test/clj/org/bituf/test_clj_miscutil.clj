@@ -63,16 +63,10 @@
 (deftest test-pretty-printing
   (testing "with-err-str"
     (is (= "Hello" (with-err-str (binding [*out* *err*] (print "Hello")))))
-    (let [txt (with-out-err-str
+    (let [txt (with-err-str
                 (! (/ 10 0)))
           ltx (.substring ^String txt 0 45)]
       (is (= ltx "java.lang.ArithmeticException: Divide by zero"))))
-  (testing "with-out-err-str"
-    (let [txt (with-out-err-str
-                (print "Hello")
-                (! (/ 10 0)))
-          ltx (.substring ^String txt 0 50)]
-      (is (= ltx "Hellojava.lang.ArithmeticException: Divide by zero"))))
   (testing "pprint-str"
     (let [x (take 12 (iterate inc 0))]
       (is (= (with-out-str (clojure.pprint/pprint x)) (pprint-str x))))))
