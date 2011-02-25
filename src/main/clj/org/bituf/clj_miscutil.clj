@@ -749,51 +749,6 @@
   (not (contains-val? coll needle)))
 
 
-;; ===== Argument/condition assertion =====
-
-(defmacro when-assert-cond
-  "Execute body of code if *assert-cond* flag is true.
-  A function implemention may use this macro to conditionally assert args or
-  return value or any condition within the code.
-  A function consumers can instead use either of:
-    1. with-assert-cond
-    2. assert-cond-true
-    3. assert-cond-false"
-  [& body]
-  `(when in/*assert-cond*
-    ~@body))
-
-
-(defmacro with-assert-cond
-  "Execute body of code in a given assert-cond context (true/false). You may
-  like to use 'false' in production mode:
-    (with-assert-cond false
-      ..)"
-  [bool & body]
-  `(binding [in/*assert-cond* ~bool]
-    ~@body))
-
-
-(defmacro assert-cond-false
-  "Short for
-    (with-assert-cond false
-      ..)
-  See also: with-assert-cond"
-  [& body]
-  `(with-assert-cond false
-    ~@body))
-
-
-(defmacro assert-cond-true
-  "Short for
-    (with-assert-cond true
-      ..)
-  See also: with-assert-cond"
-  [& body]
-  `(with-assert-cond true
-    ~@body))
-
-
 ;; ===== Stack trace and Exceptions =====
 
 
@@ -940,25 +895,31 @@
   (apply str (interpose ", " coll)))
 
 
-(defmacro verify
-  "Apply f? (that must return Boolean) to args - return true when asserted true,
-  throw exception otherwise. You can use 'verify' as a substitute for 'assert'.
-  Example:
-    (verify map? {:a 10 :b 20})"
-  [f? & many-args]
-  `(let [args# (vector ~@many-args)]
-    (assert (fn? ~f?))
-    (if (apply ~f? args#) true
-      (illegal-arg
-        "Invalid argument " (comma-sep-str (map as-vstr args#))
-        " (Expected: " (or
-                         (try (repl/source ~f?)
-                           (catch Exception _# nil))
-                         (try (:name (meta (resolve (quote ~f?))))
-                           (catch Exception _# nil))
-                         (meta ~f?))
-        ", Found: " (comma-sep-str (map #(val-dump %) args#))
-                    ")"))))
+(defmacro verify-arg
+  "Like assert, except for the following differences:
+  1. does not check for *assert* flag
+  2. throws IllegalArgumentException"
+  [arg]
+  `(if ~arg true
+     (illegal-arg "Verify (argument) failed: " (pr-str '~arg))))
+
+
+(defmacro verify-type
+  "Return true if arg is of type expected-type, throw IllegalArgumentException
+  othewise."
+  [expected-type arg]
+  `(if (isa? (type ~arg) ~expected-type) true
+     (illegal-arg "Verify (argument-type) failed - Expected: " ~expected-type
+       ", Found: " (val-dump ~arg))))
+
+
+(defmacro verify-cond
+  "Like assert, except for the following differences:
+  1. does not check for *assert* flag
+  2. throws IllegalStateException"
+  [arg]
+  `(if ~arg true
+     (illegal-state "Verify (condition) failed: " (pr-str '~arg))))
 
 
 (defn verify-opt
@@ -975,20 +936,6 @@
                    each
                    (with-out-str (pp/pprint known-set)))))))
     true))
-
-
-(defn assert-type
-  "Assert the type of a given value.
-  Example:
-    (assert-type \"Hello World!\" String)"
-  [item expected-type]
-  (assert (not-nil? item))
-  (assert (instance? Class expected-type))
-  (try
-    (assert (isa? (type item) expected-type))
-    (catch AssertionError e
-      (throw (AssertionError. (str "Expected " expected-type " but found "
-                                (type item)))))))
 
 
 (defn echo
@@ -1053,10 +1000,10 @@
     (typed [67.6 14.0 7.9] :discount-list :special-offers)"
   [obj type-1 & more]
   (let [of-types (into [type-1] more)]
-    (when-assert-cond
-      (verify obj? obj)
+    (when *assert*
+      (verify-arg (obj? obj))
       (doseq [each-type of-types]
-        (verify keyword? each-type)))
+        (verify-arg (keyword? each-type))))
     (let [[mdata types] (mdata-types obj)]
       (with-meta obj
         (into mdata
@@ -1080,9 +1027,9 @@
   See also: typed"
   ([f obj type-1 & more]
     (let [of-types (into [type-1] more)]
-      (when-assert-cond
-        (verify fn? f)
-        (doseq [each-type of-types] (verify keyword? each-type)))
+      (when *assert*
+        (verify-arg (fn? f))
+        (doseq [each-type of-types] (verify-arg (keyword? each-type))))
       (and (obj? obj)
         (let [[mdata types] (mdata-types obj)
               all-types     (into types

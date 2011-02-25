@@ -238,31 +238,6 @@
     (is (not-contains-val? {:dog "animal" :papaya "fruit"} :papaya))))
 
 
-(deftest test-condition-assertion
-  (let [throw-excp #(when-assert-cond
-                      (illegal-arg "reason"))
-        when-true  #(is (thrown? IllegalArgumentException
-                          (throw-excp)))
-        when-false #(is (= nil
-                          (throw-excp)))]
-    (testing "if-assert-cond"
-      (binding [in/*assert-cond* true]
-        (when-true))
-      (binding [in/*assert-cond* false]
-        (when-false)))
-    (testing "with-assert-cond"
-      (with-assert-cond true
-        (when-true))
-      (with-assert-cond false
-        (when-false)))
-    (testing "assert-cond-true"
-      (assert-cond-true
-        (when-true)))
-    (testing "assert-cond-false"
-      (assert-cond-false
-        (when-false)))))
-
-
 (deftest test-stacktrace-printing
   (testing "print-exception-stacktrace"
     (let [st (with-err-str (print-exception-stacktrace (NullPointerException.)))]
@@ -273,15 +248,18 @@
 
 
 (deftest test-assertion-helpers
-  (testing "verify"
-    (is (= true (verify empty? [])))
-    (is (thrown? IllegalArgumentException (verify empty? [10]))))
+  (testing "verify-arg"
+    (is (= true (verify-arg (empty? []))))
+    (is (thrown? IllegalArgumentException (verify-arg (empty? [10])))))
+  (testing "verify-cond"
+    (is (= true (verify-cond (empty? []))))
+    (is (thrown? IllegalStateException (verify-cond (empty? [10])))))
   (testing "verify-opt"
     (is (thrown? IllegalArgumentException (verify-opt [:a :b] [:c :d])))
     (is (true? (verify-opt [:a :b] [:a]))))
-  (testing "assert-type"
-    (is (= nil (assert-type "aa" String)))
-    (is (thrown? AssertionError (assert-type true String))))
+  (testing "verify-type"
+    (is (= true (verify-type String "aa")))
+    (is (thrown? IllegalArgumentException (verify-type String true))))
   (testing "echo"
     (let [m {:a 10 :b 20}
           r (echo m)
@@ -471,7 +449,6 @@
   (test-not-prefixed)
   (test-arrays)
   (test-contains-val)
-  (test-condition-assertion)
   (test-stacktrace-printing)
   (test-assertion-helpers)
   (test-type-annotation)
