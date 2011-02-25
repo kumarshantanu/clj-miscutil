@@ -507,7 +507,7 @@
 
 ;; ===== Type conversion =====
 
-(defn as-string
+(defn ^String as-string
   "Convert given argument to string.
   Example:
     (str       \":one\") ; returns \":one\"
@@ -518,7 +518,7 @@
     (str x)))
 
 
-(defn java-filename
+(defn ^String java-filename
   "Accept path (of a file) as argument and return a uniform file name for all
   operating systems."
   [s]
@@ -527,7 +527,7 @@
     (.replace ^String p "\\" "/")))
 
 
-(defn as-vstr
+(defn ^String as-vstr
   "Convert to verbose string - useful for diagnostics and error messages. Like
   as-string, but distinguishes nil as \"<nil>\". 
   Example:
@@ -729,25 +729,24 @@
   ([obj elem-type] (not (array? obj elem-type))))
 
 
-;; ===== includes? -- replacement for contains? =====
+;; ===== contains-val? -- complement of contains? =====
 
-(defn includes?
-  "Like 'contains?', but works for indexed collections (e.g. vectors, arrays)
-  too.
+(defn contains-val?
+  "Look for value unlike 'contains?', which looks for key. Works for indexed
+  collections (e.g. vectors, arrays) etc.
   See also: contains? (in clojure.core)"
   [coll needle]
-  ;; -- slower implementation commented out
-  ;;(let [indexless-coll (if (or (vector? coll) (array? coll)) (as-set coll)
-  ;;                       coll)]
-  ;;  (contains? indexless-coll needle))
-  (if (nil? coll) false
-    (.contains ^Collection coll needle)))
+  (cond
+    (not-coll?
+      coll)     false
+    (map? coll) (.containsValue ^Map coll needle)
+    :else       (.contains ^Collection coll needle)))
 
 
-(defn not-includes?
-  "Same as (not (includes? coll needle))."
+(defn not-contains-val?
+  "Same as (not (contains-val? coll needle))."
   [coll needle]
-  (not (includes? coll needle)))
+  (not (contains-val? coll needle)))
 
 
 ;; ===== Argument/condition assertion =====

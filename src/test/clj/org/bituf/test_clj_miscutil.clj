@@ -227,13 +227,15 @@
     (is (not (not-array? (into-array []))))))
 
 
-(deftest test-includes
-  (testing "includes?"
-    (is (includes? [91 92 93 94 95] 91))
-    (is (not (includes? nil "Hello"))))
-  (testing "not-includes?"
-    (is (not-includes? nil "Hello"))
-    (is (not-includes? [91 92 93 94 95] 99))))
+(deftest test-contains-val
+  (testing "contains-val?"
+    (is (contains-val? [91 92 93 94 95] 91))
+    (is (not (contains-val? nil "Hello")))
+    (is (contains-val? {:dog "animal" :papaya "fruit"} "fruit")))
+  (testing "not-contains-val?"
+    (is (not-contains-val? nil "Hello"))
+    (is (not-contains-val? [91 92 93 94 95] 99))
+    (is (not-contains-val? {:dog "animal" :papaya "fruit"} :papaya))))
 
 
 (deftest test-condition-assertion
@@ -468,7 +470,7 @@
   (test-type-conversion)
   (test-not-prefixed)
   (test-arrays)
-  (test-includes)
+  (test-contains-val)
   (test-condition-assertion)
   (test-stacktrace-printing)
   (test-assertion-helpers)
