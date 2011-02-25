@@ -61,6 +61,9 @@
 
 
 (deftest test-pretty-printing
+  (testing "with-stringwriter"
+    (is (= "Hello World!" (with-stringwriter s
+                       (.append s "Hello World!")))))
   (testing "with-err-str"
     (is (= "Hello" (with-err-str (binding [*out* *err*] (print "Hello")))))
     (let [txt (with-err-str
