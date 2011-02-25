@@ -284,10 +284,6 @@
 
 
 (deftest test-keyword-string-conversion
-  (testing "k-to-colname"
-    (is= k-to-colname {:a "a" :a-b "a_b"}))
-  (testing "colname-to-k"
-    (is= colname-to-k {"a" :a "a_b" :a-b}))
   (testing "k-to-camelstr"
     (is= k-to-camelstr {:-            ""
                         :to-do        "toDo"       ; dash triggers upper-case

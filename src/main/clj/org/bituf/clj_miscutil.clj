@@ -1034,22 +1034,6 @@
 
 ;; ===== Keyword to/from string conversion =====
 
-(defn k-to-colname
-  "Convert a keyword to database column name (string) and replace dash with
-  underscore."
-  [k]
-  (let [n (name k)
-        s (.replace n "-" "_")]
-    s))
-
-
-(defn colname-to-k
-  "Convert database column name (string) to keyword after replacing underscore
-  with dash."
-  [^String s]
-  (let [n (.replace s "_" "-")]
-    (keyword n)))
-
 
 (defn k-to-camelstr
   "Convert keyword to camel-case string and treat dash as case-changer.
