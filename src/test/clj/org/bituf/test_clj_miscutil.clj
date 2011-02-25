@@ -72,7 +72,15 @@
       (is (= ltx "java.lang.ArithmeticException: Divide by zero"))))
   (testing "pprint-str"
     (let [x (take 12 (iterate inc 0))]
-      (is (= (with-out-str (clojure.pprint/pprint x)) (pprint-str x))))))
+      (is (= (with-out-str (clojure.pprint/pprint x)) (pprint-str x)))))
+  (testing "comma-sep-str"
+    (is (= "1, 2, 3" (comma-sep-str [1 2 3]))))
+  (testing "echo"
+    (let [t "hello"
+          r (echo t)
+          s (with-out-str (echo t))]
+      (is (= r t))
+      (is (= s (format "\"%s\"\n" t))))))
 
 
 (deftest test-var-metadata

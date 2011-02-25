@@ -122,6 +122,19 @@
     (pp/pprint whatever w)))
 
 
+(defn comma-sep-str
+  "Return comma separated string for a given collection of values."
+  [coll]
+  (apply str (interpose ", " coll)))
+
+
+(defn echo
+  "Print argument using 'pprint' and then return it."
+  [x]
+  (pp/pprint x)
+  x)
+
+
 ;; ===== Numbers detection =====
 
 
@@ -870,12 +883,6 @@
 ;; ===== Assertion helpers =====
 
 
-(defn comma-sep-str
-  "Return comma separated string for a given collection of values."
-  [coll]
-  (apply str (interpose ", " coll)))
-
-
 (defmacro verify-arg
   "Like assert, except for the following differences:
   1. does not check for *assert* flag
@@ -917,13 +924,6 @@
                    each
                    (with-out-str (pp/pprint known-set)))))))
     true))
-
-
-(defn echo
-  "Print argument using 'pprint' and then return it."
-  [x]
-  (pp/pprint x)
-  x)
 
 
 ;; ===== Type annotation =====
