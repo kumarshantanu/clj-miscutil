@@ -116,6 +116,13 @@
     (is (= [10 nil] (maybe 10)))
     (let [[_ e] (maybe (throw (NullPointerException.)))]
       (is (instance? NullPointerException e))))
+  (testing "maybe-ret"
+    (is (= 10  (maybe-ret 10)))
+    (is (= nil (maybe-ret (throw (NullPointerException.))))))
+  (testing "maybe-ex"
+    (is (= nil (maybe-ex 10)))
+    (is (instance? NullPointerException
+          (maybe-ex (throw (NullPointerException.))))))
   (testing "filter-exception"
     (is (= 10 (filter-exception (constantly true) 10)))
     (is (= nil (filter-exception #(instance? IllegalStateException %)

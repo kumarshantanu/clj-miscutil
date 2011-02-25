@@ -408,6 +408,7 @@
 
 ;; ===== Non-breaking error handling =====
 
+
 (defmacro maybe
   "Execute given body of code in a try-catch block and return a 2-element
   vector [value exception], such that if the body of code returns a value
@@ -428,6 +429,26 @@
   `(try [(do ~@body) nil]
      (catch Exception e#
        [nil e#])))
+
+
+(defmacro maybe-ret
+  "Return what the body of code returns when executed. If it throws exception
+  return nil. Use this when you need only the return value and don't care about
+  the exception.
+  See also: maybe"
+  [& body]
+  `(let [[ret# ex#] (maybe ~@body)]
+     ret#))
+
+
+(defmacro maybe-ex
+  "Return the exception a body of code throws when executed. Return nil if it
+  throws no exception. Use this when you are interested in the exception rather
+  than the return value.
+  See also: maybe"
+  [& body]
+  `(let [[ret# ex#] (maybe ~@body)]
+     ex#))
 
 
 (defmacro filter-exception
