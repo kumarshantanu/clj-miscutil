@@ -1,15 +1,10 @@
 (ns org.bituf.clj-miscutil.internal
   (:import
-    (java.util Map Random)
-    (javax.naming Binding Context InitialContext)))
+    (java.util Random)
+    (javax.naming Context)))
 
 
 (def ^{:doc "Random seed" :tag Random} random-seed (Random.))
-
-
-(def ^{:doc "Flag to determine whether arguments/conditions are to be asserted"
-       :dynamic true}
-      *assert-cond* true) ; true: development/testing, false: production
 
 
 (def ^{:doc "Typically bound to javax.naming.Context"
