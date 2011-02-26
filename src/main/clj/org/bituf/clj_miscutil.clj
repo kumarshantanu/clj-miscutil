@@ -1078,13 +1078,13 @@
 (defn ^List coll-as-string
   "Convert each element in a collection to string and return a vector."
   [ks]
-  (as-vector (map as-string ks)))
+  (vec (map as-string (as-vector ks))))
 
 
 (defn ^List coll-as-keys
   "Convert each element in a collection to keyword and return a vector."
   [ks]
-  (as-vector (map keyword ks)))
+  (vec (map keyword (as-vector ks))))
 
 
 (defn ^Map keys-to-str
