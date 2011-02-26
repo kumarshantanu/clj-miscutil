@@ -959,6 +959,12 @@
   (instance? clojure.lang.IObj obj))
 
 
+(defn not-obj?
+  "Same as (not (obj? arg))"
+  [arg]
+  (not (obj? arg)))
+
+
 (defn- mdata-types
   "Return meta data (map) and types (set) the object belongs to."
   [obj]

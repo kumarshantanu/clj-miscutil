@@ -274,6 +274,12 @@
 
 
 (deftest test-type-annotation
+  (testing "obj?"
+    (is (obj? {}))
+    (is (not (obj? 10))))
+  (testing "not-obj?"
+    (is (not (not-obj? {})))
+    (is (not-obj? 10)))
   (testing "implied-types"
     (with-implied-types {:employee [:salaried :person]
                          :salaried [:person]}
