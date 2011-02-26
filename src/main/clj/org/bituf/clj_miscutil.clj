@@ -128,6 +128,13 @@
   (apply str (interpose ", " coll)))
 
 
+(defn pprint
+  "Invoke clojure.pprint/pprint on all args one by one."
+  [x & more]
+  (doseq [each (into [x] more)]
+    (pp/pprint each)))
+
+
 (defn echo
   "Print argument using 'pprint' and then return it."
   [x]
@@ -928,30 +935,6 @@
 
 ;; ===== Type annotation =====
 
-(defn implied-types
-  "Get implied types for a given object type.
-  Example:
-    user=> (implied-types :employee)
-    [:salaried :person]
-  See also: with-implied-types"
-  [obj-type]
-  (let [types (in/*implied-types* obj-type)]
-    types))
-
-
-(defmacro with-implied-types
-  "Run a body of code in the context of a given implied types map.
-  Example:
-    user=> (with-implied-types {:employee [:salaried :person]
-                                :salaried [:person]}
-             (let [ravi (typed {:name \"Ravi\" :empid 7784}
-                          :employee)]
-               (typed? ravi :person)))
-    true"
-  [all-implied-types & body]
-  `(binding [in/*implied-types* ~all-implied-types]
-     ~@body))
-
 
 (defn obj?
   "Return true if argument is a Clojure object (IObj), false otherwise."
@@ -966,10 +949,10 @@
 
 
 (defn- mdata-types
-  "Return meta data (map) and types (set) the object belongs to."
+  "Return meta data (map) and type(s) the object belongs to."
   [obj]
   (let [mdata (or (meta obj) {})
-        types (in/types-keyword mdata)]
+        types (:type mdata)]
     [mdata types]))
 
 
@@ -977,25 +960,44 @@
   "Return the set of types the given object belongs to; return empty set if it
   belongs to no type."
   [obj]
-  (let [[_ types] (mdata-types obj)]
-    (or types #{})))
+  (:type (meta obj)))
+
+
+(defn typed?
+  "Return true if child-object is of implied-type, false otherwise."
+  [child-obj implied-type] {:post [(boolean? %)]
+                           :pre  [(verify-arg (obj? child-obj))
+                                  (verify-arg (not-nil?  implied-type))
+                                  (verify-arg (not-coll? implied-type))]}
+  (or (some #(isa? % implied-type)
+        (as-vector (type-meta child-obj)))
+    false))
 
 
 (defn typed
   "Annotate given object with specified types.
   Example:
     (typed [67.6 14.0 7.9] :discount-list :special-offers)"
-  [obj type-1 & more]
-  (let [of-types (into [type-1] more)]
-    (when *assert*
-      (verify-arg (obj? obj))
-      (doseq [each-type of-types]
-        (verify-arg (keyword? each-type))))
+  ([obj type-1] {:post [(verify-arg (obj? obj))]
+                 :pre  [(verify-arg (obj? obj))
+                        (verify-arg (keyword? type-1))]}
     (let [[mdata types] (mdata-types obj)]
       (with-meta obj
         (into mdata
-          {in/types-keyword (or (and types (apply conj types of-types))
-                           (into #{} of-types))} )))))
+          {:type (if (nil? types) type-1
+                   (if (coll? types) (conj types type-1)
+                     type-1))} ))))
+  ([obj type-1 type-2 & more] {:post [(verify-arg (obj? obj))]
+                               :pre  [(verify-arg (every? keyword?
+                                                    (into [type-1 type-2]
+                                                      more)))]}
+    (let [of-types (into [type-1 type-2] more)]
+      (let [[mdata types] (mdata-types obj)]
+        (with-meta obj
+          (into mdata
+            {:type (if (nil? types) of-types
+                     (if (coll? types) (apply conj types of-types)
+                       (into [types] of-types)))} ))))))
 
 
 (defn ftyped
@@ -1007,35 +1009,6 @@
         t-obj (if (obj? obj) obj
                 (constantly obj))]
     (apply typed t-obj types)))
-
-
-(defn typed?
-  "Return true if a given object is of a certain type, false otherwise.
-  See also: typed"
-  ([f obj type-1 & more]
-    (let [of-types (into [type-1] more)]
-      (when *assert*
-        (verify-arg (fn? f))
-        (doseq [each-type of-types] (verify-arg (keyword? each-type))))
-      (and (obj? obj)
-        (let [[mdata types] (mdata-types obj)
-              all-types     (into types
-                              (flatten (map #(implied-types %) types)))]
-          (f #(contains? all-types %) of-types)))))
-  ([obj type-1]
-    (typed? every? obj type-1)))
-
-
-(defn typed-every?
-  "Return result of calling (every? #(typed? obj %) types)."
-  [obj type-1 & more]
-  (apply typed? every? obj (into [type-1] more)))
-
-
-(defn typed-some?
-  "Return result of calling (some #(typed? obj %) types)."
-  [obj type-1 & more]
-  (apply typed? some obj (into [type-1] more)))
 
 
 ;; ===== Keyword to/from string conversion =====

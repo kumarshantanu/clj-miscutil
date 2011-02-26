@@ -280,21 +280,27 @@
   (testing "not-obj?"
     (is (not (not-obj? {})))
     (is (not-obj? 10)))
-  (testing "implied-types"
-    (with-implied-types {:employee [:salaried :person]
-                         :salaried [:person]}
-      (let [ravi (typed {:name "Ravi" :empid 7784}
-                   :employee)]
-        (is (typed? ravi :person) "Transitive types"))))
   (testing "typed"
-    (is (typed? (typed {} :abc) :abc)))
+    (is (typed? (typed {} :abc) :abc))
+    (is (typed? (typed {} :abc :def) :abc))
+    (is (typed? (typed {} :abc :def) :def))
+    (let [t (typed (typed {} :abc) :def :ghi)]
+      (is (typed? t :abc))
+      (is (typed? t :def))
+      (is (typed? t :ghi))))
   (testing "ftyped"
-    (is (typed? (ftyped 1055 :abc) :abc)))
-  (testing "typed-every? and typed-some?"
-    (with-implied-types {:employee [:salaried :person]
-                         :salaried [:person]}
-      (is (typed-every? (typed {} :employee) :salaried :person))
-      (is (typed-some? (typed {} :employee) :freelancer :person)))))
+    (is (typed? (ftyped 1055 :abc) :abc))
+    (is (typed? (ftyped 1055 :abc :def) :abc))
+    (is (typed? (ftyped (ftyped 1055 :abc) :def :ghi) :abc))
+    (let [t (ftyped (ftyped {} :abc) :def :ghi)]
+      (is (typed? t :abc))
+      (is (typed? t :def))
+      (is (typed? t :ghi))))
+  (testing "hierarchy-test for typed?"
+    (derive ::employee ::salaried)
+    (derive ::salaried ::person)
+    (is (every? #(typed? (typed {} ::employee) %) [::salaried ::person]))
+    (is (some #(typed? (typed {} ::employee) %) [::freelancer ::person]))))
 
 
 (deftest test-keyword-string-conversion

@@ -23,20 +23,6 @@
       *indent* nil)
 
 
-(def ^{:doc "The 'types' keyword"}
-      types-keyword (keyword (str *ns* ".types")))
-
-
-(def ^{:doc
-  "Implied super-types (can be used to express hierarchies).
-  Example:
-    {:employee [:salaried :person] ; 'employee' implies 'salaried' and 'person'
-     :salaried [:person]           ; 'salaried' implies 'person'
-     }"
-  :dynamic true}
-      *implied-types* {})
-
-
 ;; ===== Table printing =====
 
 
