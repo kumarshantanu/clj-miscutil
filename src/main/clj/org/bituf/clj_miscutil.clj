@@ -964,14 +964,23 @@
 
 
 (defn typed?
-  "Return true if child-object is of implied-type, false otherwise."
-  [child-obj implied-type] {:post [(boolean? %)]
-                           :pre  [(verify-arg (obj? child-obj))
-                                  (verify-arg (not-nil?  implied-type))
-                                  (verify-arg (not-coll? implied-type))]}
-  (or (some #(isa? % implied-type)
-        (as-vector (type-meta child-obj)))
-    false))
+  "Return true if child-object is of implied-type, false otherwise. h is the
+  hierarchy of types (map), which defaults to global hierarchy if unspecified."
+  ([child-obj implied-type] {:post [(boolean? %)]
+                             :pre  [(verify-arg (obj? child-obj))
+                                    (verify-arg (not-nil?  implied-type))
+                                    (verify-arg (not-coll? implied-type))]}
+    (or (some #(isa? % implied-type)
+          (as-vector (type-meta child-obj)))
+      false))
+  ([h child-obj implied-type] {:post [(boolean? %)]
+                             :pre  [(verify-arg (map? h))
+                                    (verify-arg (obj? child-obj))
+                                    (verify-arg (not-nil?  implied-type))
+                                    (verify-arg (not-coll? implied-type))]}
+    (or (some #(isa? h % implied-type)
+          (as-vector (type-meta child-obj)))
+      false)))
 
 
 (defn typed

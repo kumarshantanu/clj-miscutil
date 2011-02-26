@@ -297,6 +297,11 @@
       (is (typed? t :def))
       (is (typed? t :ghi))))
   (testing "hierarchy-test for typed?"
+    (let [e (make-hierarchy)
+          g (derive e ::employee ::salaried)
+          h (derive g ::salaried ::person)]
+      (is (every? #(typed? h (typed {} ::employee) %) [::salaried ::person]))
+      (is (some #(typed? h (typed {} ::employee) %) [::freelancer ::person])))
     (derive ::employee ::salaried)
     (derive ::salaried ::person)
     (is (every? #(typed? (typed {} ::employee) %) [::salaried ::person]))
