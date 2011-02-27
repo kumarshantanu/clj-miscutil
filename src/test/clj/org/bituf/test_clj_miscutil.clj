@@ -370,7 +370,12 @@
                                           [:substring 3 4] ; returns string
                                           [:to-string]     ; no-arg method
                                           ]))
-          [\H "l" "Hello"])))
+          [\H "l" "Hello"]))
+    (is (= (doall (map (pojo-fn "Hello" :char-at) [0 1 2]))
+          [\H \e \l]))
+    (is (= (doall (map #((apply pojo-fn "Hello" :char-at %)) [[0] [1] [2]]))
+          [\H \e \l]))
+    )
   (testing "setter"
     (is (= (setter (StringBuilder.) :length 0) ; .setLength(0) - returns void
           nil))
@@ -388,7 +393,20 @@
                        [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
                        ]))
             [nil nil]))
-      (is (= (.toString sb) "Cell"))))
+      (is (= (doall (map #((apply setter-fn sb :char-at %))
+                      [[0 \C] ; .setCharAt(0, 'C') - returns void
+                       [1 \o] ; .setCharAt(0, 'o') - returns void
+                       [2 \o] ; .setCharAt(0, 'o') - returns void
+                       ]))
+            [nil nil nil]))
+      (is (= (.toString sb) "Cool"))
+      (is (= (doall (map (setter-fn sb :char-at 0)
+                      [\A ; .setCharAt(0, 'A') - returns void
+                       \B ; .setCharAt(0, 'B') - returns void
+                       ]))
+            [nil nil]))
+      (is (= (.toString sb) "Bool"))
+      ))
   (let [lst (java.util.LinkedList.)
         _   (.add lst 1)
         _   (.add lst 2)]
@@ -403,7 +421,12 @@
       (is (= (doall (map (getter-fn lst) [:first ; .getFirst() - returns 1
                                           :last  ; .getLast()  - returns 2
                                           ]))
-            [1 2])))
+            [1 2]))
+      (is (= (doall (map #((apply getter-fn lst :first %))
+                      [[] ; .getFirst() - returns 1
+                       [] ; .getFirst() - returns 1
+                       ]))
+            [1 1])))
     (testing "coll-as-string"
       (is (= ["a" "b" "10"] (coll-as-string [:a "b" 10]))))
     (testing "coll-as-keys"

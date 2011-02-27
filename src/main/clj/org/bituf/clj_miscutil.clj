@@ -1124,8 +1124,8 @@
     ;; returns
     [[\"Hello\" :char-at 0]
      [\"Hello\" :to-string]]"
-  [target method-spec & more-method-specs]
-  (let [method-specs (into [method-spec] more-method-specs)]
+  [target method-spec & more]
+  (let [method-specs (into [method-spec] more)]
     (into [] (map #(into [] (cons target (as-vector %))) method-specs))))
 
 
@@ -1159,15 +1159,15 @@
   http://github.com/richhickey/clojure/blob/master/src/jvm/clojure/lang/Reflector.java
   Short link: http://j.mp/a2Kd9R
   Examples:
-    (call-method \"Hello\" :char-at 0)     ; returns \\H
-    (call-method \"Hello\" :substring 3 4) ; returns \"l\"
+    (method \"Hello\" :char-at 0)     ; returns \\H
+    (method \"Hello\" :substring 3 4) ; returns \"l\"
     ;; the call below returns [\\H \"l\"]
-    (call-method [[\"Hello\" :char-at 0]
-                  [\"Hello\" :substring 3 4]])
+    (method [[\"Hello\" :char-at 0]
+             [\"Hello\" :substring 3 4]])
     ;; same call as above expressed using target-method-specs
-    (call-method (target-method-specs \"Hello\"
-                   [:char-at 0]
-                   [:substring 3 4]))"
+    (method (target-method-specs \"Hello\"
+              [:char-at 0]
+              [:substring 3 4]))"
   ([target method-name & args]
     (Reflector/invokeInstanceMethod
       ;; Object target, String methodName, Object[] args
@@ -1182,30 +1182,32 @@
 (defn pojo-fn
   "Wrap a Plain Old Java Object (POJO) into a function that accepts a
   method spec and invokes the method upon execution."
-  ([pojo]
-    (fn [method-spec]
+  ([pojo] {:pre [(verify-arg (not-nil? pojo))]}
+    (fn [method-spec] {:pre [(verify-arg (vector? method-spec))]}
       (let [[method-name & args] (as-vector method-spec)]
         (apply method pojo method-name args))))
-  ([pojo method-name & args]
+  ([pojo method-name & args] {:pre [(verify-arg (not-nil? pojo))
+                                    (verify-arg (not-nil? method-name))]}
     (fn [& more-args]
-      (apply method pojo method-name (into [] (concat args more-args))))))
+      (apply method pojo method-name
+        (concat args more-args)))))
 
 
 (defn setter
   "Call setter method on a target object using args. 'setter' is either a
   keyword or a string.
   Examples:
-    (call-setter obj :price 67.88)   ; .setPrice(67.88)   - returns 67.88
-    (call-setter obj :min-max 30 75) ; .setMinMax(30, 75) - returns void
-    (call-setter obj :auto-commit)   ; .setAutoCommit()   - returns true
+    (setter obj :price 67.88)   ; .setPrice(67.88)   - returns 67.88
+    (setter obj :min-max 30 75) ; .setMinMax(30, 75) - returns void
+    (setter obj :auto-commit)   ; .setAutoCommit()   - returns true
     ;; same stuff in a single call - returns [67.88 nil true]
-    (call-setter [[obj :price 67.88]
-                  [obj :min-max 30 75]
-                  [obj :auto-commit]])
+    (setter [[obj :price 67.88]
+             [obj :min-max 30 75]
+             [obj :auto-commit]])
     ;; same stuff without repeating the target object - returns [67.88 nil true]
-         (call-setter (call-specs obj [[:price 67.88]
-                                       [:min-max 30 75]
-                                       [:auto-commit]]))"
+         (setter (call-specs obj [[:price 67.88]
+                                  [:min-max 30 75]
+                                  [:auto-commit]]))"
   ([target setter-name & args]
     (apply method
       target (if (keyword? setter-name) (k-to-setter setter-name)
@@ -1224,7 +1226,7 @@
   ([pojo method-name & args]
     (fn [& more-args]
       (apply method pojo (k-to-setter method-name)
-        (into [] (concat args more-args))))))
+        (concat args more-args)))))
 
 
 (defn getter
@@ -1254,7 +1256,7 @@
   "Wrap a Plain Old Java Object (POJO) into a function that accepts a getter
   method spec and invokes the method upon execution.
   Example:
-    ;; assuming a Person class having getters getName, getAddress and getEmail
+    ;; assuming a Person class has getters getName, getAddress and getEmail
     (map (getter-fn person) [:name :address :email])"
   ([pojo]
     (fn [method-spec]
@@ -1263,7 +1265,7 @@
   ([pojo method-name & args]
     (fn [& more-args]
       (apply method pojo (k-to-getter method-name)
-        (into [] (concat args more-args))))))
+        (concat args more-args)))))
 
 
 ;; ===== Properties handling =====
