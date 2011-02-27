@@ -12,9 +12,9 @@
 * constructing exceptions
 * non-breaking error handling (exception catching)
 * type conversion/wrapping
-* more "not" prefixed functions
+* more "not" associated functions
 * array types
-* includes? (replacement for contains?)
+* contains-val? (complement for contains?)
 * friendly stack trace printing
 * type annotation (typed abstraction)
 * STDERR capture macros
