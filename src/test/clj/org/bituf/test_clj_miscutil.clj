@@ -296,6 +296,10 @@
       (is (typed? t :abc))
       (is (typed? t :def))
       (is (typed? t :ghi))))
+  (testing "untyped"
+    (is (not-contains? (untyped (typed {} :abc :def)) :type)))
+  (testing "type-meta"
+    (is (= (type-meta (typed {} :abc)) :abc)))
   (testing "hierarchy-test for typed?"
     (let [e (make-hierarchy)
           g (derive e ::employee ::salaried)
