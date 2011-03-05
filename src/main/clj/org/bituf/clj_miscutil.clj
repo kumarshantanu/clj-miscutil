@@ -541,6 +541,18 @@
     [(sr/join "/" (drop-last sf)) (last sf)]))
 
 
+(defn ^String pick-filedir
+  "Given a filepath, return the directory portion from it."
+  [s]
+  (first (split-filepath s)))
+
+
+(defn ^String pick-filename
+  "Given a filepath, return the filename portion from it."
+  [s]
+  (last (split-filepath s)))
+
+
 (defn ^String as-vstr
   "Convert to verbose string - useful for diagnostics and error messages. Like
   as-string, but distinguishes nil as \"<nil>\". 
