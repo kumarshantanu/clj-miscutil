@@ -8,6 +8,7 @@
                   NameClassPair NamingEnumeration)
     (clojure.lang Reflector))
   (:require
+    [clojure.string :as sr]
     [clojure.pprint :as pp]
     [clojure.repl   :as repl]
     [org.bituf.clj-miscutil.internal :as in]))
@@ -519,13 +520,25 @@
     (str x)))
 
 
-(defn ^String java-filename
-  "Accept path (of a file) as argument and return a uniform file name for all
-  operating systems."
+(defn ^String java-filepath
+  "Accept path (of a file) as argument and return a uniform file path for all
+  operating systems.
+  Example: \"C:\\path\\to\\file.txt\" becomes \"C:/path/to/file.txt\"
+  See also: split-filepath"
   [s]
   (let [p (if (instance? File s) (.getAbsolutePath ^File s)
             (str s))]
     (.replace ^String p "\\" "/")))
+
+
+(defn ^String split-filepath
+  "Given a complete path, split into filedir and filename and return as vector.
+  The filedir is normalized as uniform Java filepath.
+  See also: java-filepath"
+  [s]
+  (let [jf (java-filepath s)
+        sf (sr/split jf #"/")]
+    [(sr/join "/" (drop-last sf)) (last sf)]))
 
 
 (defn ^String as-vstr

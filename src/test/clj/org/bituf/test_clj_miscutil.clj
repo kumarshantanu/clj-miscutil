@@ -162,8 +162,11 @@
     (testing "as-string"
       (testall as-string
         {10 "10", nil "", "hello" "hello", :kw "kw"}))
-    (testing "java-filename"
-      (is (= "C:/path/to/file.txt" (java-filename "C:\\path\\to\\file.txt"))))
+    (testing "java-filepath"
+      (is (= "C:/path/to/file.txt" (java-filepath "C:\\path\\to\\file.txt"))))
+    (testing "pick-filename"
+      (is (= ["C:/path/to" "file.txt"] (split-filepath "C:\\path\\to\\file.txt")))
+      (is (= ["" "file.txt"] (split-filepath "file.txt"))))
     (testing "as-vstr"
       (testall as-vstr
         {10 "10", nil "<nil>", "hello" "hello", :kw "kw"}))
