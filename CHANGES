@@ -2,6 +2,12 @@
 
 # Changes and TODO
 
+
+## 0.3 / 2011-Mar-??
+
+* Filename-splitting functions
+
+
 ## 0.2 / 2011-Mar-06
 
 * Clojure 1.3 compatibility

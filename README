@@ -1,6 +1,6 @@
 -*- markdown -*-
 
-# Clj-MiscUtil v0.2
+# Clj-MiscUtil v0.3-SNAPSHOT
 
 Clj-MiscUtil is an assortment of Clojure functions/macros to carry out
 miscellaneous common activities. The functions deal with the following:
