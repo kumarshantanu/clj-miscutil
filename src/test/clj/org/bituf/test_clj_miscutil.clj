@@ -166,13 +166,32 @@
       (is (= "C:/path/to/file.txt" (java-filepath "C:\\path\\to\\file.txt"))))
     (testing "split-filepath"
       (is (= ["C:/path/to" "file.txt"] (split-filepath "C:\\path\\to\\file.txt")))
-      (is (= ["" "file.txt"] (split-filepath "file.txt"))))
+      (is (= ["/path/to" "file.txt"]   (split-filepath "/path/to/file.txt")))
+      (is (= ["" "file.txt"]           (split-filepath "file.txt"))))
     (testing "pick-filedir"
       (is (= "C:/path/to" (pick-filedir "C:\\path\\to\\file.txt")))
       (is (= ""           (pick-filedir "file.txt"))))
     (testing "pick-filename"
-      (is (= "file.txt" (pick-filename "C:\\path\\to\\file.txt")))
-      (is (= "file.txt" (pick-filename "file.txt"))))
+      (is (= "file.txt"   (pick-filename "C:\\path\\to\\file.txt")))
+      (is (= "file.txt"   (pick-filename "file.txt"))))
+    (testing "split-filename"
+      (is (= ["file" "txt"]      (split-filename "C:\\path\\to\\file.txt")))
+      (is (= ["file" "txt"]      (split-filename "/path/to/file.txt")))
+      (is (= ["file" "txt"]      (split-filename "file.txt")))
+      (is (= ["file.exe"  "txt"] (split-filename "file.exe.txt")))
+      (is (= [".file.exe" "txt"] (split-filename ".file.exe.txt")))
+      (is (= [".txt" ""]         (split-filename ".txt")))
+      (is (= ["file" ""]         (split-filename "file"))))
+    (testing "pick-filename-name"
+      (is (= "file" (pick-filename-name "C:\\path\\to\\file.txt")))
+      (is (= "file" (pick-filename-name "file.txt")))
+      (is (= ".txt" (pick-filename-name ".txt"))))
+    (testing "pick-filename-ext"
+      (is (= "txt"  (pick-filename-ext "C:\\path\\to\\file.txt")))
+      (is (= "txt"  (pick-filename-ext "file.txt")))
+      (is (= "txt"  (pick-filename-ext "file.exe.txt")))
+      (is (= ""     (pick-filename-ext ".txt")))
+      (is (= ""     (pick-filename-ext "file"))))
     (testing "as-vstr"
       (testall as-vstr
         {10 "10", nil "<nil>", "hello" "hello", :kw "kw"}))

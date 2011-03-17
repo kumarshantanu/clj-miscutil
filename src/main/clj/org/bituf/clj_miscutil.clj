@@ -553,6 +553,33 @@
   (last (split-filepath s)))
 
 
+(defn split-filename
+  "Given a partial or complete file path, split into filename and extension and
+  return as vector."
+  [s]
+  (let [f   (pick-filename s)
+        sfe (sr/split f #"\.")
+        sfc (count sfe)
+        sf1 (first sfe)
+        sf2 (second sfe)]
+    (cond
+      (= 1 sfc)                    (conj sfe "")
+      (and (= 2 sfc) (empty? sf1)) [(str "." sf2) ""]
+      :else                        [(sr/join "." (drop-last sfe)) (last sfe)])))
+
+
+(defn ^String pick-filename-name
+  "Given a filepath, return the filename (without extension) portion from it."
+  [s]
+  (first (split-filename s)))
+
+
+(defn ^String pick-filename-ext
+  "Given a filepath, return the file extension portion from it."
+  [s]
+  (last (split-filename s)))
+
+
 (defn ^String as-vstr
   "Convert to verbose string - useful for diagnostics and error messages. Like
   as-string, but distinguishes nil as \"<nil>\". 
