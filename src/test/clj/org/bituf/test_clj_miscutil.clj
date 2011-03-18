@@ -148,6 +148,15 @@
     (is (= [5 5] (repeat-exec 2 (constantly 5))))
     (is (thrown? NullPointerException (repeat-exec 20
                                         (throw (NullPointerException.))))))
+  (testing "try-while"
+    (let [a (atom 0)
+          b #(do (swap! a inc)
+               (if (< @a 5) (throw (NullPointerException.))
+                 (%)))
+          f #(b (fn [] (+ 10 @a))) ; returns number
+          g #(b (fn [] false))]    ; returns logical false
+      (is (= 15 (try-while (fn [^Throwable e] (< @a 7)) (f))))
+      (is (= 5 @a))))
   (testing "try-times"
     (let [a (atom 0)
           b #(do (swap! a inc)

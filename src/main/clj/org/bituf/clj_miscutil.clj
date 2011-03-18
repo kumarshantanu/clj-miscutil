@@ -485,7 +485,7 @@
 
 (defn repeat-exec
   "Returns a lazy (infinite!, or length n if supplied) sequence of results after
-  executing f successively."
+  executing f (no-arg function) successively."
   ([f]  {:post [(seq? %)]
          :pre  [(fn? f)]}
     (let [run (fn g[] (cons (f) (lazy-seq (g))))]
@@ -494,10 +494,23 @@
     (take n (repeat-exec f))))
 
 
+(defmacro try-while
+  "Return the result after executing code body; on exception keep re-trying as
+  long as pred returns true. The predicate function accepts thrown exception
+  as argument. Unless pred throws an exception, no exception will escape the
+  code body itself."
+  [pred & body] {:pre [`(fn? ~pred)]}
+  `(first (some #(let [e# (last %)]
+                   (if e# (if (~pred e#) false
+                            (throw e#))
+                     %))
+            (repeat-exec #(maybe ~@body)))))
+
+
 (defmacro try-times
   "Execute body of code; on exception retry maximum n-1 times. Throw last
   encountered exception if none of the tries were successful."
-  [n & body] {:pre [(posnum? n)]}
+  [n & body] {:pre [`(posnum? ~n)]}
   `(let [c# (repeat-exec (dec ~n) #(maybe ~@body))
          r# (some #(if (last %) nil %) c#)]
      (first (or r# [(do ~@body)]))))
