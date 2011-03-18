@@ -144,6 +144,26 @@
                 (throw (NullPointerException.)))))
     (is (= 10 (with-exceptions [] []
                 10))))
+  (testing "repeat-exec"
+    (is (= [5 5] (repeat-exec 2 (constantly 5))))
+    (is (thrown? NullPointerException (repeat-exec 20
+                                        (throw (NullPointerException.))))))
+  (testing "try-times"
+    (let [a (atom 0)
+          b #(do (swap! a inc)
+               (if (< @a 5) (throw (NullPointerException.))
+                 (%)))
+          f #(b (fn [] (+ 10 @a))) ; returns number
+          g #(b (fn [] false))]    ; returns logical false
+      (is (= 15 (try-times 7 (f))))
+      (is (= 5 @a))
+      (reset! a 0)
+      (is (thrown? NullPointerException (try-times 3 (f))))
+      (reset! a 0)
+      (is (= false (try-times 7 (g))))
+      (is (= 5 @a))
+      (reset! a 0)
+      (is (thrown? NullPointerException (try-times 3 (g))))))
   (testing "with-safe-open"
     (let [close-ex (proxy [java.io.Closeable] []
                      (close [] (throw (IllegalStateException.))))]

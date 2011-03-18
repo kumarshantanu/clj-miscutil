@@ -483,6 +483,26 @@
      ~@body))
 
 
+(defn repeat-exec
+  "Returns a lazy (infinite!, or length n if supplied) sequence of results after
+  executing f successively."
+  ([f]  {:post [(seq? %)]
+         :pre  [(fn? f)]}
+    (let [run (fn g[] (cons (f) (lazy-seq (g))))]
+      (run))) 
+  ([n f] {:pre [(and (number? n) (pos? n))]}
+    (take n (repeat-exec f))))
+
+
+(defmacro try-times
+  "Execute body of code; on exception retry maximum n times. Throw last
+  encountered exception if none of the tries were successful."
+  [n & body] {:pre [(posnum? n)]}
+  `(let [c# (repeat-exec (dec ~n) #(maybe ~@body))
+         r# (some #(if (last %) nil %) c#)]
+     (first (or r# [(do ~@body)]))))
+
+
 (defmacro with-safe-open
   "bindings => [name init ...]
 
