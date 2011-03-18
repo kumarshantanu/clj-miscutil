@@ -495,7 +495,7 @@
 
 
 (defmacro try-times
-  "Execute body of code; on exception retry maximum n times. Throw last
+  "Execute body of code; on exception retry maximum n-1 times. Throw last
   encountered exception if none of the tries were successful."
   [n & body] {:pre [(posnum? n)]}
   `(let [c# (repeat-exec (dec ~n) #(maybe ~@body))
