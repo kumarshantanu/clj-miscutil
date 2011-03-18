@@ -486,6 +486,7 @@
 (defn repeat-exec
   "Returns a lazy (infinite!, or length n if supplied) sequence of results after
   executing f (no-arg function) successively."
+  {:added "0.3"}
   ([f]  {:post [(seq? %)]
          :pre  [(fn? f)]}
     (let [run (fn g[] (cons (f) (lazy-seq (g))))]
@@ -499,6 +500,7 @@
   long as pred returns true. The predicate function accepts thrown exception
   as argument. Unless pred throws an exception, no exception will escape the
   code body itself."
+  {:added "0.3"}
   [pred & body] {:pre [`(fn? ~pred)]}
   `(first (some #(let [e# (last %)]
                    (if e# (if (~pred e#) false
@@ -510,6 +512,7 @@
 (defmacro try-times
   "Execute body of code; on exception retry maximum n-1 times. Throw last
   encountered exception if none of the tries were successful."
+  {:added "0.3"}
   [n & body] {:pre [`(posnum? ~n)]}
   `(let [c# (repeat-exec (dec ~n) #(maybe ~@body))
          r# (some #(if (last %) nil %) c#)]
@@ -589,6 +592,7 @@
 (defn split-filename
   "Given a partial or complete file path, split into filename and extension and
   return as vector."
+  {:added "0.3"}
   [s]
   (let [f   (pick-filename s)
         sfe (sr/split f #"\.")
@@ -603,12 +607,14 @@
 
 (defn ^String pick-filename-name
   "Given a filepath, return the filename (without extension) portion from it."
+  {:added "0.3"}
   [s]
   (first (split-filename s)))
 
 
 (defn ^String pick-filename-ext
   "Given a filepath, return the file extension portion from it."
+  {:added "0.3"}
   [s]
   (last (split-filename s)))
 
