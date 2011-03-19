@@ -498,8 +498,8 @@
 (defmacro try-while
   "Return the result after executing code body; on exception keep re-trying as
   long as pred returns true. The predicate function accepts thrown exception
-  as argument. Unless pred throws an exception, no exception will escape the
-  code body itself."
+  as argument. Unless pred throws an exception or returns false, no exception
+  will escape the code body itself."
   {:added "0.3"}
   [pred & body] {:pre [`(fn? ~pred)]}
   `(first (some #(let [e# (last %)]
