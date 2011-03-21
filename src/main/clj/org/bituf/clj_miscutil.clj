@@ -429,7 +429,7 @@
           (println \"Hello \" name))))"
   [& body]
   `(try [(do ~@body) nil]
-     (catch Exception e#
+     (catch Throwable e#
        [nil e#])))
 
 
