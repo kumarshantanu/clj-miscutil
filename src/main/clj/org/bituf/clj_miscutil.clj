@@ -567,6 +567,19 @@
     (.replace ^String p "\\" "/")))
 
 
+(defn ^String local-filepath
+  "Accept path (of a file) as argument and convert to a file path as per the
+  operating system.
+  Example: \"C:/path/to/file.txt\" becomes \"C:\\path\\to\\file.txt\"
+  See also: java-filepath"
+  [s]
+  (let [p (if (instance? File s) (.getAbsolutePath ^File s)
+            (str s))
+        d (File/separator)]
+    (if (= d "/") (.replace ^String p "\\" d)
+      (.replace ^String p "/" d))))
+
+
 (defn ^String split-filepath
   "Given a complete path, split into filedir and filename and return as vector.
   The filedir is normalized as uniform Java filepath.

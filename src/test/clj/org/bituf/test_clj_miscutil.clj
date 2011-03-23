@@ -1,4 +1,6 @@
 (ns org.bituf.test-clj-miscutil
+  (:import
+    (java.io File))
   (:require
     [org.bituf.clj-miscutil.internal :as in])
   (:use org.bituf.clj-miscutil)
@@ -193,6 +195,10 @@
         {10 "10", nil "", "hello" "hello", :kw "kw"}))
     (testing "java-filepath"
       (is (= "C:/path/to/file.txt" (java-filepath "C:\\path\\to\\file.txt"))))
+    (testing "local-filepath"
+      (let [d (File/separator)]
+        (is (= (format "C:%spath%sto%sfile.txt" d d d)
+              (local-filepath "C:/path\\to/file.txt")))))
     (testing "split-filepath"
       (is (= ["C:/path/to" "file.txt"] (split-filepath "C:\\path\\to\\file.txt")))
       (is (= ["/path/to" "file.txt"]   (split-filepath "/path/to/file.txt")))
