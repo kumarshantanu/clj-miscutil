@@ -572,6 +572,7 @@
   operating system.
   Example: \"C:/path/to/file.txt\" becomes \"C:\\path\\to\\file.txt\"
   See also: java-filepath"
+  {:added "0.3"}
   [s]
   (let [p (if (instance? File s) (.getAbsolutePath ^File s)
             (str s))
