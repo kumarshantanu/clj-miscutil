@@ -868,10 +868,13 @@
   ide-reference field is to enable clickable links in IDEs.
   See also: print-stacktrace"
   ([stack-trace]
-    (map #(let [class-name  (or (.getClassName  ^StackTraceElement %) "")
-                method-name (or (.getMethodName ^StackTraceElement %) "")
-                file-name   (or (.getFileName   ^StackTraceElement %) "")
-                line-number (.getLineNumber ^StackTraceElement %)]
+    (map #(let [file-name   (or (.getFileName   ^StackTraceElement %) "")
+                line-number (.getLineNumber ^StackTraceElement %)
+                class-name  (let [cn (or (.getClassName  ^StackTraceElement %) "")]
+                              (if (.endsWith ^String file-name ".clj")
+                                (sr/join "/" (sr/split cn #"\$"))
+                                cn))
+                method-name (or (.getMethodName ^StackTraceElement %) "")]
             (if *show-ide-reference*
               ;; then
               [file-name line-number class-name method-name
@@ -914,8 +917,8 @@
   [& stacktrace-rows]
   (print-table-with-header
     (if *show-ide-reference*
-      ["File" "Line#" "Class" "Method" "IDE Reference"]
-      ["File" "Line#" "Class" "Method"])
+      ["File" "Line#" "Qualified Class or Function" "Method" "IDE Reference"]
+      ["File" "Line#" "Qualified Class or Function" "Method"])
     (first (filter not-empty? stacktrace-rows))))
 
 
