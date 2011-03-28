@@ -974,13 +974,17 @@
 
 (defmacro !
   "Execute given body of code in a try-catch block; if exception occurs then
-  print friendly stack trace.
+  print friendly stack trace followed by normal stack trace, and then re-throw
+  the exception.
   See also: print-exception-stacktrace, print-stacktrace"
   [& body]
   `(try ~@body
-     (catch Exception e#
+     (catch Throwable e#
+       ;; print pretty stack trace
        (print-exception-stacktrace e#)
-       (.printStackTrace e# ^PrintWriter *err*))))
+       ;; print normal stack trace too (because at times, user might want both)
+       (.printStackTrace e# ^PrintWriter *err*)
+       (throw e#))))
 
 
 (defmacro !!

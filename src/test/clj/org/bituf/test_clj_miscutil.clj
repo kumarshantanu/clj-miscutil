@@ -69,7 +69,7 @@
   (testing "with-err-str"
     (is (= "Hello" (with-err-str (binding [*out* *err*] (print "Hello")))))
     (let [txt (with-err-str
-                (! (/ 10 0)))
+                (maybe-ret (! (/ 10 0))))
           ltx (.substring ^String txt 0 45)]
       (is (= ltx "java.lang.ArithmeticException: Divide by zero"))))
   (testing "pprint-str"
@@ -311,7 +311,7 @@
     (let [st (with-err-str (print-exception-stacktrace (NullPointerException.)))]
       (is (and (string? st) (not-empty? st)))))
   (testing "!"
-    (let [st (with-err-str (! (/ 10 0)))]
+    (let [st (with-err-str (maybe-ret (! (/ 10 0))))]
       (is (and (string? st) (not-empty? st))))))
 
 
