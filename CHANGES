@@ -3,9 +3,10 @@
 # Changes and TODO
 
 
-## 0.3 / 2011-Mar-??
+## 0.3 / 2011-Apr-01
 
 * Filename-splitting functions
+* Version information as a var
 
 
 ## 0.2 / 2011-Mar-06

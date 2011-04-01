@@ -4,7 +4,7 @@
   <groupId>org.bituf</groupId>
   <artifactId>clj-miscutil</artifactId>
   <packaging>jar</packaging>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <name>clj-miscutil</name>
   <description>
     Clj-MiscUtil is an assortment of Clojure functions/macros to carry out
