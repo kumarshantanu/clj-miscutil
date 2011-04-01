@@ -14,6 +14,10 @@
     [org.bituf.clj-miscutil.internal :as in]))
 
 
+(def ^{:doc "Version (only major and minor)"}
+      version [0 3])
+
+
 ;; ===== Declarations ======
 
 
