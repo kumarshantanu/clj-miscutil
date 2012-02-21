@@ -437,7 +437,7 @@
        [nil e#])))
 
 
-(defmacro maybe-ret
+(defmacro maybe-val
   "Return what the body of code returns when executed. If it throws exception
   return nil. Use this when you need only the return value and don't care about
   the exception.
@@ -702,7 +702,7 @@
   "Coerce x using f. Return nil if f throws exception."
   [f x]
   (let [s (as-string (first (as-vector x)))]
-    (maybe-ret (f s))))
+    (maybe-val (f s))))
 
 
 (defn ^Boolean as-boolean

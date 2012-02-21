@@ -8,6 +8,7 @@
 * [TODO] Add documentation
 * Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
 * [TODO] Add static setter for classes
+* Rename `maybe-ret` to `maybe-val`
 
 ## 0.3 / 2011-Apr-01
 
