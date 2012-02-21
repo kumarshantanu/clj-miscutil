@@ -1304,6 +1304,24 @@
     (into [] (map #(apply method %) call-specs))))
 
 
+(defn static-method
+  "Call static method on the target object. Wrapper for
+  Reflector/invokeStaticMethod (see link):
+  http://github.com/clojure/clojure/blob/master/src/jvm/clojure/lang/Reflector.java
+  Short link: http://j.mp/a2Kd9R
+  For examples, see `method` function and substitute object with Class or a String
+  replarenting the class name."
+  ([target method-name & args]
+    (Reflector/invokeStaticMethod
+      ;; Class/String target, String methodName, Object[] args
+      target
+      (if (keyword? method-name) (k-to-methodname method-name)
+        (as-string method-name))
+      (into-array Object args)))
+  ([call-specs]
+    (into [] (map #(apply static-method %) call-specs))))
+
+
 (defn pojo-fn
   "Wrap a Plain Old Java Object (POJO) into a function that accepts a
   method spec and invokes the method upon execution."
@@ -1315,6 +1333,21 @@
                                     (verify-arg (not-nil? method-name))]}
     (fn [& more-args]
       (apply method pojo method-name
+        (concat args more-args)))))
+
+
+(defn class-fn
+  "Wrap a Class (or a String representing a class name) into a function that
+  accepts a method spec and invokes the method upon execution."
+  ([klass] {:pre [(verify-arg (or (class? klass) (string? klass)))]}
+    (fn [method-spec] {:pre [(verify-arg (vector? method-spec))]}
+      (let [[method-name & args] (as-vector method-spec)]
+        (apply static-method klass method-name args))))
+  ([klass method-name & args] {:pre [(verify-arg (or (class? klass)
+                                                     (string? klass)))
+                                     (verify-arg (not-nil? method-name))]}
+    (fn [& more-args]
+      (apply static-method klass method-name
         (concat args more-args)))))
 
 
@@ -1341,6 +1374,19 @@
     (into [] (map #(apply setter %) setter-specs))))
 
 
+(defn static-setter
+  "Call static setter method on a target class using args. 'setter' is either a
+  keyword or a string.
+  Examples:
+    See `setter` and substitute target object with class"
+  ([klass setter-name & args]
+    (apply static-method
+      klass (if (keyword? setter-name) (k-to-setter setter-name)
+               setter-name) args))
+  ([setter-specs]
+    (into [] (map #(apply static-setter %) setter-specs))))
+
+
 (defn setter-fn
   "Wrap a Plain Old Java Object (POJO) into a function that accepts a setter
   method spec and invokes the method upon execution."
@@ -1351,6 +1397,19 @@
   ([pojo method-name & args]
     (fn [& more-args]
       (apply method pojo (k-to-setter method-name)
+        (concat args more-args)))))
+
+
+(defn static-setter-fn
+  "Wrap a Class into a function that accepts a setter
+  method spec and invokes the static method upon execution."
+  ([klass]
+    (fn [method-spec]
+      (let [[method-name & args] (as-vector method-spec)]
+        (apply static-method klass (k-to-setter method-name) args))))
+  ([klass method-name & args]
+    (fn [& more-args]
+      (apply static-method klass (k-to-setter method-name)
         (concat args more-args)))))
 
 
@@ -1377,6 +1436,19 @@
     (into [] (map #(apply getter %) getter-specs))))
 
 
+(defn static-getter
+  "Call static getter method on a Class. 'getter-name' is either a keyword
+  or a string.
+  Example:
+    See `getter` examples and substitute object with class."
+  ([klass getter-name & args]
+    (apply static-method
+      klass (if (keyword? getter-name) (k-to-getter getter-name)
+               getter-name) args))
+  ([getter-specs]
+    (into [] (map #(apply static-getter %) getter-specs))))
+
+
 (defn getter-fn
   "Wrap a Plain Old Java Object (POJO) into a function that accepts a getter
   method spec and invokes the method upon execution.
@@ -1390,6 +1462,22 @@
   ([pojo method-name & args]
     (fn [& more-args]
       (apply method pojo (k-to-getter method-name)
+        (concat args more-args)))))
+
+
+(defn static-getter-fn
+  "Wrap a Class into a function that accepts a getter
+  method spec and invokes the static method upon execution.
+  Example:
+    ;; assuming a Owner class has getters getName, getAddress and getEmail
+    (map (static-getter-fn Owner) [:name :address :email])"
+  ([klass]
+    (fn [method-spec]
+      (let [[method-name & args] (as-vector method-spec)]
+        (apply static-method klass (k-to-getter method-name) args))))
+  ([klass method-name & args]
+    (fn [& more-args]
+      (apply static-method klass (k-to-getter method-name)
         (concat args more-args)))))
 
 

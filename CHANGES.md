@@ -7,7 +7,7 @@
 * [TODO] Move from Apache license to Eclipse license
 * [TODO] Add documentation
 * Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
-* [TODO] Add static setter for classes
+* Add static method-call/setter/getter for classes -- [TODO] unit tests
 * Rename `maybe-ret` to `maybe-val`
 
 ## 0.3 / 2011-Apr-01
