@@ -6,7 +6,7 @@
 * Move from Maven build to Leiningen build
 * [TODO] Move from Apache license to Eclipse license
 * [TODO] Add documentation
-* [TODO] Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
+* Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
 * [TODO] Add static setter for classes
 
 ## 0.3 / 2011-Apr-01

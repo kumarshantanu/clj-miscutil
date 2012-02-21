@@ -4,6 +4,5 @@
   :dev-dependencies [[simple-jndi "0.11.4"]
                      [lein-multi "1.1.0"]]
   :multi-deps {"1.2" [[org.clojure/clojure "1.2.1"]]
-               ;"1.3" [[org.clojure/clojure "1.3.0"]]
-               ;"1.4" [[org.clojure/clojure "1.4.0-alpha5"]]
-               })
+               "1.3" [[org.clojure/clojure "1.3.0"]]
+               "1.4" [[org.clojure/clojure "1.4.0-alpha5"]]})

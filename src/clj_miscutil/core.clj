@@ -556,7 +556,8 @@
     (as-string \":one\") ; returns \"one\"
   See also: as-vstr"
   [x]
-  (if (or (keyword? x) (symbol? x)) (name x)
+  (if (or (keyword? x) (symbol? x))
+    (name x)
     (str x)))
 
 

@@ -97,7 +97,7 @@
 
 (deftest test-exception-throwing
   (testing "val-dump"
-    (is (= "(class java.lang.Integer) 45\n" (val-dump 45)))
+    (is (= "(class clojure.lang.Keyword) :foo\n" (val-dump :foo)))
     (is (= "<nil>\n" (val-dump nil))))
   (testing "illegal-arg"
     (is (thrown? IllegalArgumentException (illegal-arg "reason"))))
@@ -263,10 +263,10 @@
         {"10" 10 20 20 nil nil "ab" nil [29] 29 {:v 93} 93}))
     (testing "as-float"
       (testall as-float
-        {"10" 10 "45.44" (float 45.44) 20 20 nil nil "ab" nil [29] 29 {:v 93} 93}))
+        {"10" 10.0 "45.44" (float 45.44) 20 20.0 nil nil "ab" nil [29] 29.0 {:v 93} 93.0}))
     (testing "as-double"
       (testall as-double
-        {"10" 10 20 20 "12.34" 12.34 nil nil "ab" nil [29] 29 {:v 93} 93}))))
+        {"10" 10.0 20 20.0 "12.34" 12.34 nil nil "ab" nil [29] 29.0 {:v 93} 93.0}))))
 
 
 (deftest test-not-prefixed
