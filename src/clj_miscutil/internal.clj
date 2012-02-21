@@ -1,4 +1,4 @@
-(ns org.bituf.clj-miscutil.internal
+(ns clj-miscutil.internal
   (:import
     (java.util Random)
     (javax.naming Context)))

@@ -1,5 +1,5 @@
-(ns org.bituf.clj-miscutil
-  "Assortment of functions for carrying out miscellaneous activities."
+(ns clj-miscutil.core
+  "Assortment of functions/macros for carrying out miscellaneous activities."
   (:import
     (java.io      File PrintWriter StringWriter InputStream Reader)
     (java.net     URL)
@@ -11,7 +11,7 @@
     [clojure.string :as sr]
     [clojure.pprint :as pp]
     [clojure.repl   :as repl]
-    [org.bituf.clj-miscutil.internal :as in]))
+    [clj-miscutil.internal :as in]))
 
 
 (def ^{:doc "Version (only major and minor)"}
@@ -1280,7 +1280,7 @@
 (defn method
   "Call instance method on the target object. Wrapper for
   Reflector/invokeInstanceMethod (see link):
-  http://github.com/richhickey/clojure/blob/master/src/jvm/clojure/lang/Reflector.java
+  http://github.com/clojure/clojure/blob/master/src/jvm/clojure/lang/Reflector.java
   Short link: http://j.mp/a2Kd9R
   Examples:
     (method \"Hello\" :char-at 0)     ; returns \\H

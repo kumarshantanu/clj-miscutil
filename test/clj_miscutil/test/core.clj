@@ -1,9 +1,9 @@
-(ns org.bituf.test-clj-miscutil
+(ns clj-miscutil.test.core
   (:import
     (java.io File))
-  (:require
-    [org.bituf.clj-miscutil.internal :as in])
-  (:use org.bituf.clj-miscutil)
+;  (:require
+;    [clj-miscutil.internal :as in])
+  (:use clj-miscutil.core)
   (:use clojure.test))
 
 
