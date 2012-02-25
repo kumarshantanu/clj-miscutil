@@ -21,16 +21,21 @@ namespace `clj-miscutil` that you can include as follows:
 :language: clojure
 
 [source]
-    (use 'clj-miscutil)
+--------
+(use 'clj-miscutil)
+--------
 
 or
 
 [source]
-    (ns example.app
-      (:require
-        [clj-miscutil :as mu]))
+--------
+(ns example.app
+  (:require
+    [clj-miscutil :as mu]))
+--------
 
 The examples below assume the first statement.
+
 
 Random values
 -------------
@@ -45,27 +50,36 @@ Generating a random number
 To generate a random number (long), you can use the `random-number` function.
 
 [source]
-    (random-number)
+--------
+(random-number)
+--------
 
 Random numbers may be useful to create unique filenames or database table names
 with a common prefix.
 
 [source]
-    (str "invoices-2011-02-20-" (random-number))
+--------
+(str "invoices-2011-02-20-" (random-number))
+--------
 
 To obtain a random number (double precision) from a certain min/max range, you
 can specify the range:
 
 [source]
-    ;; return a random number between 10 (included) and 20 (excluded)
-    (random-number 10 20)
+--------
+;; return a random number between 10 (included) and 20 (excluded)
+(random-number 10 20)
+--------
 
 For an example, to randomly pick a value from a vector, you would use something
 like this:
 
 [source]
-    (let [v [1 2 3 4 5 6 7 8 9]]
-      (v (int (random-number 0 (count v)))))
+--------
+(let [v [1 2 3 4 5 6 7 8 9]]
+  (v (int (random-number 0 (count v)))))
+--------
+
 
 Generating a random string
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,10 +89,11 @@ that returns string of length 11-13 characters by default. You can optionally
 specify a length of the random string.
 
 [source]
-    (random-string)     ; string of random 11-13 characters
+--------
+(random-string)     ; string of random 11-13 characters
 
-[source]
-    (random-string 20)  ; string of 20 random characters
+(random-string 20)  ; string of 20 random characters
+--------
 
 
 Another way of generating alphanumeric random characters is to use the
@@ -86,10 +101,11 @@ random-charseq function. By default this function returns a lazy-sequence of
 infinite alphanumeric characters but you can optionally specify a length.
 
 [source]
-    (random-charseq)     ; lazy seq of infinite random characters
+--------
+(random-charseq)     ; lazy seq of infinite random characters
 
-[source]
-    (random-charseq 10)  ; lazy seq of 10 random characters
+(random-charseq 10)  ; lazy seq of 10 random characters
+--------
 
 
 Type checking
@@ -100,14 +116,17 @@ as number?, string?, map? etc. Additional such functions not available in
 Clojure core are below:
 
 [source]
-        (boolean? false)       ; returns true
-        (boolean? "hello")     ; returns false
-        (not-boolean? "hello") ; returns true
-        (not-boolean? true)    ; returns false
-        (date? (java.util.Date.))      ; returns true
-        (date? "hello")                ; returns false
-        (not-date? (java.util.Date.))  ; returns false
-        (not-date? "hello")            ; returns true
+--------
+(boolean? false)       ; returns true
+(boolean? "hello")     ; returns false
+(not-boolean? "hello") ; returns true
+(not-boolean? true)    ; returns false
+(date? (java.util.Date.))      ; returns true
+(date? "hello")                ; returns false
+(not-date? (java.util.Date.))  ; returns false
+(not-date? "hello")            ; returns true
+--------
+
 
 Pretty printing
 ---------------
@@ -121,9 +140,11 @@ and execute body of code in that context. Returns the string from StringWriter.
 Example:
 
 [source]
-        (with-stringwriter s
-          (.append s "Hello")
-          (.append s "World"))  ; returns "HelloWorld"
+--------
+(with-stringwriter s
+  (.append s "Hello")
+  (.append s "World"))  ; returns "HelloWorld"
+--------
 
 
 *`with-err-str`*
@@ -145,6 +166,7 @@ string representation.
 This function is a simple diagnostic tool that pretty-prints anything (single
 argument) you pass to it and returns the same argument.
 
+
 Number sign detection
 ---------------------
 
@@ -153,17 +175,20 @@ but `(pos? "Hello")` throws `ClassCastException`. The alternatives below return
 false in event of exceptions.
 
 [source]
+--------
 (zeronum? 0)        ; return true
 (zeronum? 36)       ; return false
 (zeronum? "hello")  ; returns false
 
-        (posnum? 378)   ; returns true
-        (posnum? -32)   ; retyrns false
-        (posnum? :pqrs) ; returns false
+(posnum? 378)   ; returns true
+(posnum? -32)   ; retyrns false
+(posnum? :pqrs) ; returns false
 
-        (negnum? 378)   ; false
-        (negnum? -32)   ; true
-        (negnum? :pqrs) ; false
+(negnum? 378)   ; false
+(negnum? -32)   ; true
+(negnum? :pqrs) ; false
+--------
+
 
 Print tables
 ------------
@@ -173,6 +198,7 @@ a table is generally a collection of rows, optionally with a header row. You can
 use the `print-table` function to print a table of data to `*out*`.
 
 [source]
+--------
 (print-table [{:a 10 :b 20 :c 30}
               {:a 40 :b 50 :c 60}
               {:a 70 :b 80 :c 90}])  ; with titles "a", "b" and "c"
@@ -185,6 +211,7 @@ use the `print-table` function to print a table of data to `*out*`.
              [[10 20 30]
               [40 50 60]
               [70 80 90]])           ; with titles "a", "b" and "c"
+--------
 
 
 The examples above use the defaults to print the tables. You can override the
@@ -193,10 +220,12 @@ computed by default, if you want to specify width of columns you can use
 something like this:
 
 [source]
-        (binding [*pt-cols-width* [5 -1 7]]
-          (print-table [{:id 1001 :name "Harry"    :gender :male}
-                        {:id 2997 :name "Samantha" :gender :female}
-                        {:id 8328 :name "Christie" :gender :female}]))
+--------
+(binding [*pt-cols-width* [5 -1 7]]
+  (print-table [{:id 1001 :name "Harry"    :gender :male}
+                {:id 2997 :name "Samantha" :gender :female}
+                {:id 8328 :name "Christie" :gender :female}]))
+--------
 
 Other options you can override are as follows:
 
@@ -208,6 +237,7 @@ Other options you can override are as follows:
 *Note:* One notable feature of `*pt-cols-width*` is that a non-positive number
 implies that the width would be automatically computed.
 
+
 Var metadata
 ------------
 
@@ -217,11 +247,14 @@ reporting. You can find out the name (string) of a var using the macro
 value using the `val-dump` function.
 
 [source]
-￼￼￼     (var-name map?)  ; returns "map?"
+--------
+(var-name map?)  ; returns "map?"
 
-        (var-body map?)  ; returns source code for map? function
+(var-body map?)  ; returns source code for map? function
 
-        (val-dump #"[a-z0-9]")  ; returns type and value as string
+(val-dump #"[a-z0-9]")  ; returns type and value as string
+--------
+
 
 Throwing exceptions
 -------------------
@@ -245,6 +278,7 @@ exceptions with relevant context:
 Examples of these functions are as follows:
 
 [source]
+--------
 (illegal-arg "name should not have more than 3 vowels")
 (try (get-fname empname)
   (catch Exception e
@@ -261,6 +295,7 @@ Examples of these functions are as follows:
 
 ;; assuming e is an exception
 (unsupported-op e "Attempt to carry out activity failed")
+--------
 
 
 Non-breaking error handling
@@ -282,28 +317,34 @@ The maybe macro executes body of code and returns a vector of two elements - the
 first element being the return value, and the second being the exception.
 
 [source]
-        (maybe (pos? 648)) ; returns [true nil]
-        (maybe (pos? nil)) ; returns [nil <NullPointerException instance>]
+--------
+(maybe (pos? 648)) ; returns [true nil]
+(maybe (pos? nil)) ; returns [nil <NullPointerException instance>]
+--------
 
 Since `maybe` is a macro you can pass arbitrary body of well-formed code to it
 and it will consistently return a 2-element vector every time. An example usage
 of `maybe` is as follows:
 
 [source]
-        (doseq [[ret ex] (map #(maybe (process-order %)) orders)]
-          (or ret (log/success ret))
-          (or ex  (do (log/error ex)
-                    (trigger-alert ex))))
+--------
+(doseq [[ret ex] (map #(maybe (process-order %)) orders)]
+  (or ret (log/success ret))
+  (or ex  (do (log/error ex)
+            (trigger-alert ex))))
+--------
 
 There are two close cousins of the `maybe` macro, called `maybe-val` (gets the
-return value, or `nil` when an exception is thrown) and maybe-ex (gets the
+return value, or `nil` when an exception is thrown) and `maybe-ex` (gets the
 exception, or `nil` when no exception is thrown).
 
 [source]
-        (maybe-ret (Integer/parseInt "45"))    ; returns 45
-        (maybe-ret (Integer/parseInt "hello")) ; returns nil
-        (maybe-ex (Integer/parseInt "45"))     ; returns nil
-        (maybe-ex (Integer/parseInt "hello"))  ; returns NumberFormatException
+--------
+(maybe-val (Integer/parseInt "45"))    ; returns 45
+(maybe-val (Integer/parseInt "hello")) ; returns nil
+(maybe-ex (Integer/parseInt "45"))     ; returns nil
+(maybe-ex (Integer/parseInt "hello"))  ; returns NumberFormatException
+--------
 
 
 Selectively uphold or ignore exceptions
@@ -318,24 +359,28 @@ When you need arbitrary control over how/when to filter an exception you can use
 `filter-exception`.
 
 [source]
-        (filter-exception #(instance? ClassCastException %)
-          (pos? "hello"))  ; returns nil
+--------
+(filter-exception #(instance? ClassCastException %)
+  (pos? "hello"))  ; returns nil
+--------
 
 Another situation is when you know beforehand which exceptions to uphold and
 which ones to ignore.
 
 [source]
-        ;; throws exception
-        (with-exceptions [IllegalArgumentException IllegalStateException]
-                         [RuntimeException]
-          "foo" ; non-effective return value
-￼￼￼          (throw (IllegalArgumentException. "dummy")))
+--------
+;; throws exception
+(with-exceptions [IllegalArgumentException IllegalStateException]
+                  [RuntimeException]
+  "foo" ; non-effective return value
+￼￼(throw (IllegalArgumentException. "dummy")))
 
-        ;; swallows exception
-        (with-exceptions [IllegalArgumentException IllegalStateException]
-                         [RuntimeException]
-          "foo" ; non-effective return value
-          (throw (NullPointerException. "dummy")))
+;; swallows exception
+(with-exceptions [IllegalArgumentException IllegalStateException]
+                  [RuntimeException]
+  "foo" ; non-effective return value
+  (throw (NullPointerException. "dummy")))
+--------
 
 
 Retry on exception {:added "0.3"}
@@ -349,17 +394,22 @@ predicate returns false. `try-times` accepts a positive integer and body of
 code, which is tried at most the specified number of times.
 
 [source]
-        (def a (atom 0))
-        (defn foo
-          "The function we want tried several times"
-          []
-          (do (swap! a inc)
-            (if (< @a 5) (throw (NullPointerException.))
-              (+ 10 @a))))
-        (try-while (fn [^Throwable e] (< @a 7))
-          (foo))
-        (try-times 7
-          (foo))
+--------
+(def a (atom 0))
+
+(defn foo
+  "The function we want tried several times"
+  []
+  (do (swap! a inc)
+    (if (< @a 5) (throw (NullPointerException.))
+      (+ 10 @a))))
+
+(try-while (fn [^Throwable e] (< @a 7))
+  (foo))
+
+(try-times 7
+  (foo))
+--------
 
 
 Type conversion
@@ -372,29 +422,29 @@ desired type.
 
 [frame="topbot",options="header"]
 |=====
-|Function       |Converts to |Remarks
-|as-string      |string      |converts anything to string (i.e. :key becomes "key")
-|java-filepath  |string      |Replaces path separators in supplied filepath with Java-compatible platform independent separator
-|local-filepath |string      |Replaces path separators in supplied filepath with local, platform-dependent separator
-|split-filepath |vector of 2 string elements |Splits filepath as filedir (with platform-independent path separator) and filename and returns a vector containing both
-|pick-filedir   |string      |Picks filedir from a given filepath
-|pick-filename  |string      |Picks filename (with extension) from a given filepath
-|split-filename |vector of 2 string elements |Splits filename as file name and file extension and returns a vector containing both
-|pick-filename-name |string  |Picks only the file name (without extension) portion from a given filepath
-|pick-filename-ext  |string  |Picks only the file extension from a given filepath
-|as-vstr        |string      |Verbose string (i.e. nil becomes "<nil>")
-|as-keys        |collection  |Gets keys of a map, or the entire collection if not a map
-|as-vals        |collection  |Gets vals of map, or the entire collection of not a map
-|as-vector      |vector      |Turns anything into a vector
-|as-set         |set         |Turns anything into a set
-|as-map         |map         |Turns anything into a map
-|coerce         |it depends  |Coerces value using a specified function
-|as-boolean     |boolean     |Parses anything as boolean
-|as-short       |short       |Parses anything as short
-|as-integer     |integer     |Parses anything as integer
-|as-long        |long        |Parses anything as long
-|as-float       |float       |Parses anything as float
-|as-double      |double      |Parses anything as double
+|Function         |Converts to |Remarks
+|`as-string`      |string      |converts anything to string (i.e. :key becomes "key")
+|`java-filepath`  |string      |Replaces path separators in supplied filepath with Java-compatible platform independent separator
+|`local-filepath` |string      |Replaces path separators in supplied filepath with local, platform-dependent separator
+|`split-filepath` |vector of 2 string elements |Splits filepath as filedir (with platform-independent path separator) and filename and returns a vector containing both
+|`pick-filedir`   |string      |Picks filedir from a given filepath
+|`pick-filename`  |string      |Picks filename (with extension) from a given filepath
+|`split-filename` |vector of 2 string elements |Splits filename as file name and file extension and returns a vector containing both
+|`pick-filename-name` |string  |Picks only the file name (without extension) portion from a given filepath
+|`pick-filename-ext`  |string  |Picks only the file extension from a given filepath
+|`as-vstr`        |string      |Verbose string (i.e. `nil` becomes `"<nil>"`)
+|`as-keys`        |collection  |Gets keys of a map, or the entire collection if not a map
+|`as-vals`        |collection  |Gets vals of map, or the entire collection of not a map
+|`as-vector`      |vector      |Turns anything into a vector
+|`as-set`         |set         |Turns anything into a set
+|`as-map`         |map         |Turns anything into a map
+|`coerce`         |it depends  |Coerces value using a specified function
+|`as-boolean`     |boolean     |Parses anything as boolean
+|`as-short`       |short       |Parses anything as short
+|`as-integer`     |integer     |Parses anything as integer
+|`as-long`        |long        |Parses anything as long
+|`as-float`       |float       |Parses anything as float
+|`as-double`      |double      |Parses anything as double
 |=====
 
 
@@ -408,57 +458,57 @@ shorthand of using with not:
 
 [frame="topbot",options="header"]
 |=====
-|Function==>           |Counterpart in clojure.core
-|any?                  |not-any?
-|not-associative?      |associative?
-|not-bound?            |bound?
-|not-char?             |char?
-|not-chunked-seq?      |chunked-seq?
-|not-class?            |class?
-|not-coll?             |coll?
-|not-contains?         |contains?
-|not-counted?          |counted?
-|not-decimal?          |decimal?
-|not-delay?            |delay?
-|not-distinct?         |distinct?
-|not-empty?            |empty?
-|not-even?             |even?
-|not-extends?          |extends?
-|not-false?            |false?
-|not-float?            |float?
-|not-fn?               |fn?
-|not-future-cancelled? |future-cancelled?
-|not-future-done?      |future-done?
-|not-future?           |future?
-|not-identical?        |identical?
-|not-ifn?              |ifn?
-|not-instance?         |instance?
-|not-integer?          |integer?
-|not-isa?              |isa?
-|not-keyword?          |keyword?
-|not-list?             |list?
-|not-map?              |map?
-|not-neg?              |neg?
-|not-nil?              |nil?
-|not-number?           |number?
-|not-odd?              |odd?
-|not-pos?              |pos?
-|not-ratio?            |ratio?
-|not-rational?         |rational?
-|not-reversible?       |reversible?
-|not-satisfies?        |satisfies?
-|not-seq?              |seq?
-|not-sequential?       |sequential?
-|not-set?              |set?
-|not-sorted?           |sorted?
-|not-special-symbol?   |special-symbol?
-|not-string?           |string?
-|not-symbol?           |symbol?
-|not-thread-bound?     |thread-bound?
-|not-true?             |true?
-|not-var?              |var?
-|not-vector?           |vector?
-|not-zero?             |zero?
+|Function==>             |Counterpart in clojure.core
+|`any?`                  |`not-any?`
+|`not-associative?`      |`associative?`
+|`not-bound?`            |`bound?`
+|`not-char?`             |`char?`
+|`not-chunked-seq?`      |`chunked-seq?`
+|`not-class?`            |`class?`
+|`not-coll?`             |`coll?`
+|`not-contains?`         |`contains?`
+|`not-counted?`          |`counted?`
+|`not-decimal?`          |`decimal?`
+|`not-delay?`            |`delay?`
+|`not-distinct?`         |`distinct?`
+|`not-empty?`            |`empty?`
+|`not-even?`             |`even?`
+|`not-extends?`          |`extends?`
+|`not-false?`            |`false?`
+|`not-float?`            |`float?`
+|`not-fn?`               |`fn?`
+|`not-future-cancelled?` |`future-cancelled?`
+|`not-future-done?`      |`future-done?`
+|`not-future?`           |`future?`
+|`not-identical?`        |`identical?`
+|`not-ifn?`              |`ifn?`
+|`not-instance?`         |`instance?`
+|`not-integer?`          |`integer?`
+|`not-isa?`              |`isa?`
+|`not-keyword?`          |`keyword?`
+|`not-list?`             |`list?`
+|`not-map?`              |`map?`
+|`not-neg?`              |`neg?`
+|`not-nil?`              |`nil?`
+|`not-number?`           |`number?`
+|`not-odd?`              |`odd?`
+|`not-pos?`              |`pos?`
+|`not-ratio?`            |`ratio?`
+|`not-rational?`         |`rational?`
+|`not-reversible?`       |`reversible?`
+|`not-satisfies?`        |`satisfies?`
+|`not-seq?`              |`seq?`
+|`not-sequential?`       |`sequential?`
+|`not-set?`              |`set?`
+|`not-sorted?`           |`sorted?`
+|`not-special-symbol?`   |`special-symbol?`
+|`not-string?`           |`string?`
+|`not-symbol?`           |`symbol?`
+|`not-thread-bound?`     |`thread-bound?`
+|`not-true?`             |`true?`
+|`not-var?`              |`var?`
+|`not-vector?`           |`vector?`
+|`not-zero?`             |`zero?`
 |=====
 
 
@@ -468,9 +518,12 @@ Map transformation
 Transforming collections can be easily done using map or for. However, transforming maps always involves destructuring the key and value and then apply any transformation. The functions map-keys and map-vals let you simply transform either the keys or the values of a map. When using map-keys you must ensure that the transformed set of keys are unique.
 
 [source]
-        (map-keys inc (array-map 1 2 3 4 5 6)) ; returns {2 2 4 4 6 6}
+--------
+(map-keys inc (array-map 1 2 3 4 5 6)) ; returns {2 2 4 4 6 6}
 
-        (map-vals dec (array-map 1 2 3 4 5 6)) ; returns {1 1 3 3 5 5}
+(map-vals dec (array-map 1 2 3 4 5 6)) ; returns {1 1 3 3 5 5}
+--------
+
 
 Array types
 -----------
@@ -500,11 +553,13 @@ a vector the keys are the indices, for sets they are the elements and for maps
 they are keys. The `contains-val?` function looks for values instead of keys.
 
 [source]
-        (contains?     [:a :b :c] :b) ; returns false
-        (contains-val? [:a :b :c] :b) ; returns true
+--------
+(contains?     [:a :b :c] :b) ; returns false
+(contains-val? [:a :b :c] :b) ; returns true
 
-        (contains?     {:a 10 :b 20} 20) ; returns false
-        (contains-val? {:a 10 :b 20} 20) ; returns true
+(contains?     {:a 10 :b 20} 20) ; returns false
+(contains-val? {:a 10 :b 20} 20) ; returns true
+--------
 
 
 Stack trace and Exceptions
@@ -534,9 +589,11 @@ prints an additional IDE Reference column to generate filenames clickable within
 the IDE (tested on Eclipse and IDEA). Example is below:
 
 [source]
-        (! (foo arg))   ; prints normal stack-trace columns
+--------
+(! (foo arg))   ; prints normal stack-trace columns
 
-        (!! (foo arg))  ; prints extra IDE reference column
+(!! (foo arg))  ; prints extra IDE reference column
+--------
 
 
 Assertion helpers
@@ -547,14 +604,18 @@ Assertion helpers
 Throws `IllegalArgumentException` if body of code does not return true.
 
 [source]
-        (verify-arg (map? arg)) ; verifies arg is a map
+--------
+(verify-arg (map? arg)) ; verifies arg is a map
+--------
 
 *`verify-type`*
 
 Throws `IllegalArgumentException` if argument does not match expected type.
 
 [source]
-        (verify-type java.util.Date join-date)
+--------
+(verify-type java.util.Date join-date)
+--------
 
 
 *`verify-cond`*
@@ -567,9 +628,11 @@ This macro is same as `verify-arg` but throws `IllegalStateException` instead of
 This function ensures that only permitted optional arguments are passed as optional arguments to a function or macro.
 
 [source]
-        (defn foo
-          [arg & {:keys [a b] :as opt}] {:pre [(verify-opt [:a :b] opt)]}
-          ...)
+--------
+(defn foo
+  [arg & {:keys [a b] :as opt}] {:pre [(verify-opt [:a :b] opt)]}
+  ...)
+--------
 
 
 Type annotation
@@ -593,15 +656,17 @@ The following functions help you annotate objects with type metadata:
 This function annotates an object with specified type(s), e.g.
 
 [source]
-        (typed [:argentina :spain]
-          :speaks-spanish)                 ; tag the object with one type
+--------
+(typed [:argentina :spain]
+  :speaks-spanish)                 ; tag the object with one type
 
-        (typed {:name "Henry"
-                :age   23
-                :place "Connecticut"}
-          :person-data :has-age :has-name) ; tag object with multiple types
+(typed {:name "Henry"
+        :age   23
+        :place "Connecticut"}
+  :person-data :has-age :has-name) ; tag object with multiple types
 
-        (typed 65 :average-weight)         ; throws exception - 65 is not object
+(typed 65 :average-weight)         ; throws exception - 65 is not object
+--------
 
 
 *`ftyped`*
@@ -616,7 +681,9 @@ that they can be coerced as objects before they are type-annotated, e.g.
 executed to return the wrapped value, e.g.
 
 [source]
-        (let [d (ftyped 60 :retirement-age)] (d))
+--------
+(let [d (ftyped 60 :retirement-age)] (d))
+--------
 
 *`obj?`*
 *`not-obj?`*
@@ -634,15 +701,17 @@ Reading the types back
 This function returns the type metadata of an object
 
 [source]
-        (type-meta (typed {:order-id 34}
-                     :pending))              ; returns :pending
+--------
+(type-meta (typed {:order-id 34}
+              :pending))              ; returns :pending
 
-        (type-meta (typed [:france :germany]
-                     :european :countries))  ; returns [:european :countries]
+(type-meta (typed [:france :germany]
+              :european :countries))  ; returns [:european :countries]
 
-        (type-meta (typed (typed [10 20]
-                            :numbers)
-                     :sample))               ; returns [:numbers :sample]
+(type-meta (typed (typed [10 20]
+                    :numbers)
+              :sample))               ; returns [:numbers :sample]
+--------
 
 
 Removing type information
@@ -653,7 +722,9 @@ Removing type information
 This function can be used to remove type information from an object.
 
 [source]
-        (type-meta (untyped (typed {:a 10 :b 20} :abc))) ; returns nil
+--------
+(type-meta (untyped (typed {:a 10 :b 20} :abc))) ; returns nil
+--------
 
 
 Type hierarchies and implied types
@@ -671,18 +742,20 @@ classes, e.g. Java) and type hierarchies can be applied at runtime. This feature
 enables multiple-inheritance of types in Clojure. See this example:
 
 [source]
-        (derive ::employee ::salaried) ; employee is salaried
-        (derive ::salaried ::person)   ; salaried is a person
+--------
+(derive ::employee ::salaried) ; employee is salaried
+(derive ::salaried ::person)   ; salaried is a person
 
-        ;; returns true because ::employee is both ::salaried and ::person
-        (every? #(typed? (typed {:id 3964 :name "Joe"}
-                           ::employee) %)
-          [::salaried ::person])
+;; returns true because ::employee is both ::salaried and ::person
+(every? #(typed? (typed {:id 3964 :name "Joe"}
+                    ::employee) %)
+  [::salaried ::person])
 
-        ;; returns true because ::employee is at least ::person
-        (some   #(typed? (typed {:id 9604 :name "Cher"}
-                           ::employee) %)
-          [::freelancer ::person])
+;; returns true because ::employee is at least ::person
+(some   #(typed? (typed {:id 9604 :name "Cher"}
+                    ::employee) %)
+  [::freelancer ::person])
+--------
 
 *`typed?`*
 
@@ -697,20 +770,22 @@ Keyword/String conversion
 The keyword/string conversion functions would be best shown with examples:
 
 [source]
-        (k-to-camelstr :to-do) ; returns "toDo"
-        (camelstr-to-k "toDo") ; returns :to-do
+--------
+(k-to-camelstr :to-do) ; returns "toDo"
+(camelstr-to-k "toDo") ; returns :to-do
 
-        (k-to-methodname :to-do ["add"]) ; returns "addToDo" (now see k-to-camelstr)
+(k-to-methodname :to-do ["add"]) ; returns "addToDo" (now see k-to-camelstr)
 (k-to-setter :price)       ; returns "setPrice"
 (k-to-setter :set-price)   ; returns "setPrice" (detects "set", no repeat)
 (k-to-getter :price)       ; returns "getPrice"
 (k-to-getter :get-price)   ; returns "getPrice"  (detects "get", no repeat)
 (k-to-getter :is-in-stock) ; returns "isInStock" (detects "is" too)
 
-        (coll-as-string [:a :b :c])    ; returns ["a" "b" "c"]
-        (coll-as-keys   ["a" "b" "c"]) ; returns [:a :b :c]
-        (keys-to-str {:a 10 :b 20})    ; returns {"a" 10 "b" 20}
-        (str-to-keys {"a" 10 "b" 20})  ; returns {:a 10 :b 20}
+(coll-as-string [:a :b :c])    ; returns ["a" "b" "c"]
+(coll-as-keys   ["a" "b" "c"]) ; returns [:a :b :c]
+(keys-to-str {:a 10 :b 20})    ; returns {"a" 10 "b" 20}
+(str-to-keys {"a" 10 "b" 20})  ; returns {:a 10 :b 20}
+--------
 
 
 Reflection (not for performance-critical code)
@@ -722,53 +797,59 @@ Call Java methods
 ~~~~~~~~~~~~~~~~~
 
 [source]
-        (method "Hello" :char-at 0) ; .charAt(0) - returns \H
+--------
+(method "Hello" :char-at 0) ; .charAt(0) - returns \H
 
-        (method (call-specs "Hello"
-                  [:char-at 0]     ; .charAt(0)       - returns \H
-                  [:substring 3 4] ; .substring(3, 4) - returns "l"
-                  [:to-string]     ; .toString()      - returns "Hello"
-                  ))
+(method (call-specs "Hello"
+          [:char-at 0]     ; .charAt(0)       - returns \H
+          [:substring 3 4] ; .substring(3, 4) - returns "l"
+          [:to-string]     ; .toString()      - returns "Hello"
+          ))
 
-        (map #((apply pojo-fn "Hello" %))
-          [[:char-at 0]     ; returns primitive char
-           [:substring 3 4] ; returns string
-           [:to-string]     ; no-arg method
-           ]) ; returns lazy (\H "l" "Hello")
+(map #((apply pojo-fn "Hello" %))
+  [[:char-at 0]     ; returns primitive char
+    [:substring 3 4] ; returns string
+    [:to-string]     ; no-arg method
+    ]) ; returns lazy (\H "l" "Hello")
+--------
 
 
 Call Java setter methods
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 [source]
-        (setter (StringBuilder.)
-          :length 0) ; .setLength(0) - returns void, 'setter' returns nil
+--------
+(setter (StringBuilder.)
+  :length 0) ; .setLength(0) - returns void, 'setter' returns nil
 
-        (setter (call-specs sb
-                  [:length 4]     ; .setLength(4)      - returns void
-                  [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
-                  )) ; 'setter' returns [nil nil]
+(setter (call-specs sb
+          [:length 4]     ; .setLength(4)      - returns void
+          [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
+          )) ; 'setter' returns [nil nil]
 
-        (map #((apply setter-fn sb %))
-          [[:length 4]     ; .setLength(4)      - returns void
-￼￼￼           [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
-           ]) ; returns lazy (nil nil)
+(map #((apply setter-fn sb %))
+  [[:length 4]     ; .setLength(4)      - returns void
+   [:char-at 0 \C] ; .setCharAt(0, 'C') - returns void
+   ]) ; returns lazy (nil nil)
+--------
 
 
 Call Java getter methods
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 [source]
-        (let [lst (java.util.LinkedList.)
-              _ (.add lst 1)
-              _ (.add lst 2)]
-          (getter lst :first) ; .getFirst() - returns 1
-          (getter (call-specs lst :first ; .getFirst() - returns 1
-                                  :last  ; .getLast()  - returns 2
-                                  )) ; returns [1 2]
-          (map (getter-fn lst) [:first ; .getFirst() - returns 1
-                                :last  ; .getLast()  - returns 2
-                                ])) ; returns lazy (1 2)
+--------
+(let [lst (java.util.LinkedList.)
+      _ (.add lst 1)
+      _ (.add lst 2)]
+  (getter lst :first) ; .getFirst() - returns 1
+  (getter (call-specs lst :first ; .getFirst() - returns 1
+                          :last  ; .getLast()  - returns 2
+                          )) ; returns [1 2]
+  (map (getter-fn lst) [:first ; .getFirst() - returns 1
+                        :last  ; .getLast()  - returns 2
+                        ])) ; returns lazy (1 2)
+--------
 
 
 java.util.Properties handling
@@ -777,19 +858,23 @@ java.util.Properties handling
 Assuming that the file sample.properties has the following content:
 
 [source,properties]
-        a=10
-        b=20
-        c=true
+--------
+a=10
+b=20
+c=true
+--------
 
 Properties can be transformed into maps:
 
 [source]
-    (let [ps (read-properties "src/test/conf/sample.properties")]
-      (property-map ps)     ; returns {"a" "10" "b" "20" "c" "true"}
-      (strkey-to-keyword
-        (property-map ps))) ; returns {:a "10" :b "20" :c "true"}
+--------
+(let [ps (read-properties "src/test/conf/sample.properties")]
+  (property-map ps)     ; returns {"a" "10" "b" "20" "c" "true"}
+  (strkey-to-keyword
+    (property-map ps))) ; returns {:a "10" :b "20" :c "true"}
 
-    (is-true? "true") ; returns true - useful to test bool values in properties
+(is-true? "true") ; returns true - useful to test bool values in properties
+--------
 
 
 JNDI functions
@@ -798,13 +883,15 @@ JNDI functions
 These JNDI tree-printing functions can be used to debug the JNDI configuration:
 
 [source]
-        (print-jndi-tree) ; print the JNDI tree referring initial context
+--------
+(print-jndi-tree) ; print the JNDI tree referring initial context
 
-        (find-jndi-subcontext (javax.naming.InitialContext.)
-                 "java:comp") ; returns javax.naming.Context (if configured)
+(find-jndi-subcontext (javax.naming.InitialContext.)
+          "java:comp") ; returns javax.naming.Context (if configured)
 
-        (jndi-lookup
-          "java:comp/env/myDataSource") ; returns javax.sql.DataSource (if configured)
+(jndi-lookup
+  "java:comp/env/myDataSource") ; returns javax.sql.DataSource (if configured)
+--------
 
 
 
