@@ -2,8 +2,16 @@
 
 rm -rf target
 mkdir -p target
-asciidoc -a pygments -b html -o target/manual.html manual.asciidoc
-asciidoc -a pygments -b docbook -o target/manual.xml manual.asciidoc
+if [ -z "`which pygmentize`" ]; then
+  pyg=""
+  cat manual.asciidoc | sed -e 's/\:language\:\ clojure/\:language\:\ lisp/' > target/manual.asciidoc
+else
+  pyg="-a pygments"
+  cp manual.asciidoc target/manual.asciidoc
+fi
+
+asciidoc $pyg -b html -o target/manual.html target/manual.asciidoc
+asciidoc $pyg -b docbook -o target/manual.xml target/manual.asciidoc
 cp by-nd-88x31.png target
 
 rm -rf .lein-plugins
