@@ -1,8 +1,6 @@
 (ns clj-miscutil.test.core
   (:import
-    (java.io File))
-;  (:require
-;    [clj-miscutil.internal :as in])
+    (java.io File ByteArrayOutputStream PrintStream))
   (:use clj-miscutil.core)
   (:use clojure.test))
 
@@ -432,6 +430,17 @@
                      (call-specs "Hello"
                        [:char-at 0] [:substring 3 4] [:to-string])))
           [nil \H "l" "Hello"])))
+  (testing
+    "static-method"
+    (let [bs (ByteArrayOutputStream.)
+          ps (PrintStream. bs)
+          out System/out]
+      (try
+        (static-method System :set-out ps)
+        (.print System/out "hello")
+        (is (= "hello" (.toString bs)))
+        (finally
+          (System/setOut out)))))
   (testing "pojo-fn"
     (is (= (doall (map (pojo-fn "Hello") [[:char-at 0]     ; returns primitive char
                                           [:substring 3 4] ; returns string
@@ -441,8 +450,18 @@
     (is (= (doall (map (pojo-fn "Hello" :char-at) [0 1 2]))
           [\H \e \l]))
     (is (= (doall (map #((apply pojo-fn "Hello" :char-at %)) [[0] [1] [2]]))
-          [\H \e \l]))
-    )
+          [\H \e \l])))
+  (testing
+    "class-fn"
+    (let [bs (ByteArrayOutputStream.)
+          ps (PrintStream. bs)
+          out System/out]
+      (try
+        ((class-fn System) [:set-out ps])
+        (.print System/out "hello")
+        (is (= "hello" (.toString bs)))
+        (finally
+          (System/setOut out)))))
   (testing "setter"
     (is (= (setter (StringBuilder.) :length 0) ; .setLength(0) - returns void
           nil))
@@ -453,6 +472,17 @@
                        ))
             [nil nil]))
       (is (= (.toString sb) "Cell"))))
+  (testing
+    "static-setter"
+    (let [bs (ByteArrayOutputStream.)
+          ps (PrintStream. bs)
+          out System/out]
+      (try
+        (static-setter System :out ps)
+        (.print System/out "hello")
+        (is (= "hello" (.toString bs)))
+        (finally
+          (System/setOut out)))))
   (testing "setter-fn"
     (let [sb (StringBuilder. "Hello")]
       (is (= (doall (map (setter-fn sb)
@@ -472,8 +502,18 @@
                        \B ; .setCharAt(0, 'B') - returns void
                        ]))
             [nil nil]))
-      (is (= (.toString sb) "Bool"))
-      ))
+      (is (= (.toString sb) "Bool"))))
+  (testing
+    "static-setter-fn"
+    (let [bs (ByteArrayOutputStream.)
+          ps (PrintStream. bs)
+          out System/out]
+      (try
+        ((static-setter-fn System) [:out ps])
+        (.print System/out "hello")
+        (is (= "hello" (.toString bs)))
+        (finally
+          (System/setOut out)))))
   (let [lst (java.util.LinkedList.)
         _   (.add lst 1)
         _   (.add lst 2)]
@@ -484,6 +524,10 @@
                                      :last  ; .getLast()  - returns 2
                                      ))
             [1 2])))
+    (testing
+      "static-getter"
+      (static-setter System :property "foo" "bar")
+      (= "bar" (static-getter System :property "foo")))
     (testing "getter-fn"
       (is (= (doall (map (getter-fn lst) [:first ; .getFirst() - returns 1
                                           :last  ; .getLast()  - returns 2
@@ -494,6 +538,10 @@
                        [] ; .getFirst() - returns 1
                        ]))
             [1 1])))
+    (testing
+      "static-getter-fn"
+      (static-setter System :property "foo" "bar")
+      (= "bar" ((static-getter-fn System) [:property "foo"])))
     (testing "coll-as-string"
       (is (= ["a" "b" "10"] (coll-as-string [:a "b" 10]))))
     (testing "coll-as-keys"
