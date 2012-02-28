@@ -5,7 +5,7 @@
 * Move from Bitbucket to Github
 * Move from Maven build to Leiningen build
 * [TODO] Move from Apache license to Eclipse license
-* Add documentation -- [TODO] for 0.4 functions
+* Add documentation
 * Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
 * Add static method-call/setter/getter for classes
 * Rename `maybe-ret` to `maybe-val`

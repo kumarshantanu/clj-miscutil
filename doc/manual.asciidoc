@@ -3,11 +3,11 @@
 
 Manual for clj-miscutil : Miscellaneous functions for Clojure
 =============================================================
-Shantanu Kumar (kumar.shantanu@gmail.com, @kumarshantanu)
-0.4-SNAPSHOT, February 2012
+Shantanu Kumar <kumar.shantanu@gmail.com>, @kumarshantanu
+v0.4-SNAPSHOT, February 2012: Written for version 0.4 release.
 :doctype: article
 
-Copyright (C) 2011-2012 Shantanu Kumar
+(C) 2011-2012 Shantanu Kumar
 
 image:by-nd-88x31.png[]
 This manual is licensed under Creative Commons Attribution-NoDerivs 3.0 Unported
@@ -793,8 +793,8 @@ Reflection (not for performance-critical code)
 
 The examples below show how to use the API:
 
-Call Java methods
-~~~~~~~~~~~~~~~~~
+Call Java instance methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [source]
 --------
@@ -814,8 +814,19 @@ Call Java methods
 --------
 
 
-Call Java setter methods
-~~~~~~~~~~~~~~~~~~~~~~~~
+Call Java static methods (since 0.4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[source]
+--------
+(static-method System :set-out (PrintStream. (ByteArrayOutputStream.))) ; .setOut
+
+((class-fn System) [:set-out (PrintStream. (ByteArrayOutputStream.))])  ; .setOut
+--------
+
+
+Call Java instance setter methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [source]
 --------
@@ -833,9 +844,16 @@ Call Java setter methods
    ]) ; returns lazy (nil nil)
 --------
 
+Call Java static setter methods (since 0.4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Call Java getter methods
-~~~~~~~~~~~~~~~~~~~~~~~~
+[source]
+--------
+(static-setter System :out (PrintStream. (ByteArrayOutputStream.))) ; .setOut
+--------
+
+Call Java instance getter methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [source]
 --------
@@ -849,6 +867,14 @@ Call Java getter methods
   (map (getter-fn lst) [:first ; .getFirst() - returns 1
                         :last  ; .getLast()  - returns 2
                         ])) ; returns lazy (1 2)
+--------
+
+Call Java static getter methods (since 0.4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[source]
+--------
+(static-getter System :property "foo") ; .getProperty("foo")
 --------
 
 
