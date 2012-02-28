@@ -1311,6 +1311,7 @@
   Short link: http://j.mp/a2Kd9R
   For examples, see `method` function and substitute object with Class or a String
   replarenting the class name."
+  {:added "0.4"}
   ([target method-name & args]
     (Reflector/invokeStaticMethod
       ;; Class/String target, String methodName, Object[] args
@@ -1339,6 +1340,7 @@
 (defn class-fn
   "Wrap a Class (or a String representing a class name) into a function that
   accepts a method spec and invokes the method upon execution."
+  {:added "0.4"}
   ([klass] {:pre [(verify-arg (or (class? klass) (string? klass)))]}
     (fn [method-spec] {:pre [(verify-arg (vector? method-spec))]}
       (let [[method-name & args] (as-vector method-spec)]
@@ -1379,6 +1381,7 @@
   keyword or a string.
   Examples:
     See `setter` and substitute target object with class"
+  {:added "0.4"}
   ([klass setter-name & args]
     (apply static-method
       klass (if (keyword? setter-name) (k-to-setter setter-name)
@@ -1403,6 +1406,7 @@
 (defn static-setter-fn
   "Wrap a Class into a function that accepts a setter
   method spec and invokes the static method upon execution."
+  {:added "0.4"}
   ([klass]
     (fn [method-spec]
       (let [[method-name & args] (as-vector method-spec)]
@@ -1441,6 +1445,7 @@
   or a string.
   Example:
     See `getter` examples and substitute object with class."
+  {:added "0.4"}
   ([klass getter-name & args]
     (apply static-method
       klass (if (keyword? getter-name) (k-to-getter getter-name)
@@ -1471,6 +1476,7 @@
   Example:
     ;; assuming a Owner class has getters getName, getAddress and getEmail
     (map (static-getter-fn Owner) [:name :address :email])"
+  {:added "0.4"}
   ([klass]
     (fn [method-spec]
       (let [[method-name & args] (as-vector method-spec)]
