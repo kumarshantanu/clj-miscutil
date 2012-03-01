@@ -6,7 +6,7 @@
 * Move from Maven build to Leiningen build
 * [TODO] Move from Apache license to Eclipse license
 * Add documentation
-* Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
+* Support Clojure 1.2.0 through Clojure 1.4.0-beta2
 * Add static method-call/setter/getter for classes
 * Rename `maybe-ret` to `maybe-val`
 * Rename `pick-filename-name` to `pick-filename-only`
