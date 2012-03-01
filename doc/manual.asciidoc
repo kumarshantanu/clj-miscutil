@@ -430,7 +430,7 @@ desired type.
 |`pick-filedir`   |string      |Picks filedir from a given filepath
 |`pick-filename`  |string      |Picks filename (with extension) from a given filepath
 |`split-filename` |vector of 2 string elements |Splits filename as file name and file extension and returns a vector containing both
-|`pick-filename-name` |string  |Picks only the file name (without extension) portion from a given filepath
+|`pick-filename-only` |string  |Picks only the file name (without extension) portion from a given filepath
 |`pick-filename-ext`  |string  |Picks only the file extension from a given filepath
 |`as-vstr`        |string      |Verbose string (i.e. `nil` becomes `"<nil>"`)
 |`as-keys`        |collection  |Gets keys of a map, or the entire collection if not a map

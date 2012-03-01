@@ -624,7 +624,7 @@
       :else                        [(sr/join "." (drop-last sfe)) (last sfe)])))
 
 
-(defn ^String pick-filename-name
+(defn ^String pick-filename-only
   "Given a filepath, return the filename (without extension) portion from it."
   {:added "0.3"}
   [s]

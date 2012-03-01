@@ -9,6 +9,7 @@
 * Support Clojure 1.2.0 to Clojure 1.4.0-alpha5
 * Add static method-call/setter/getter for classes
 * Rename `maybe-ret` to `maybe-val`
+* Rename `pick-filename-name` to `pick-filename-only`
 
 ## 0.3 / 2011-Apr-01
 

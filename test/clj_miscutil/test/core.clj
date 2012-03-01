@@ -215,10 +215,10 @@
       (is (= [".file.exe" "txt"] (split-filename ".file.exe.txt")))
       (is (= [".txt" ""]         (split-filename ".txt")))
       (is (= ["file" ""]         (split-filename "file"))))
-    (testing "pick-filename-name"
-      (is (= "file" (pick-filename-name "C:\\path\\to\\file.txt")))
-      (is (= "file" (pick-filename-name "file.txt")))
-      (is (= ".txt" (pick-filename-name ".txt"))))
+    (testing "pick-filename-only"
+      (is (= "file" (pick-filename-only "C:\\path\\to\\file.txt")))
+      (is (= "file" (pick-filename-only "file.txt")))
+      (is (= ".txt" (pick-filename-only ".txt"))))
     (testing "pick-filename-ext"
       (is (= "txt"  (pick-filename-ext "C:\\path\\to\\file.txt")))
       (is (= "txt"  (pick-filename-ext "file.txt")))
