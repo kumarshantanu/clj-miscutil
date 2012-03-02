@@ -1,5 +1,6 @@
-(defproject clj-miscutil "0.4-SNAPSHOT"
+(defproject clj-miscutil "0.4"
   :description "Miscellaneous utility functions/macros in Clojure"
+  :url "https://github.com/kumarshantanu/clj-miscutil"
   ;;:dependencies [[org.clojure/clojure "1.3.0"]]
   :dev-dependencies [[simple-jndi "0.11.4"]
                      [lein-multi "1.1.0"]]

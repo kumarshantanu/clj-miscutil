@@ -1,4 +1,4 @@
-# Clj-MiscUtil v0.4-SNAPSHOT
+# Clj-MiscUtil v0.4
 
 Clj-MiscUtil is an assortment of Clojure functions/macros to carry out
 miscellaneous common activities. The functions deal with the following:
@@ -22,9 +22,9 @@ miscellaneous common activities. The functions deal with the following:
 
 ## Usage
 
-Maven/Leiningen dependency details are here: [http://clojars.org/org.bituf/clj-miscutil](http://clojars.org/org.bituf/clj-miscutil)
+Maven/Leiningen dependency details are here: [http://clojars.org/clj-miscutil](http://clojars.org/clj-miscutil)
 
-Clj-MiscUtil v0.4 is tested for Clojure versions 1.2 through 1.4-beta2, and can be used by including the following in your namespace:
+Clj-MiscUtil v0.4 is tested for Clojure versions 1.2 through 1.4, and can be used by including the following in your namespace:
 
     (ns example.app
       (:use clj-miscutil))

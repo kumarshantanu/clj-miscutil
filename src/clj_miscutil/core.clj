@@ -15,7 +15,7 @@
 
 
 (def ^{:doc "Version (only major and minor)"}
-      version [0 3])
+      version [0 4])
 
 
 ;; ===== Declarations ======
