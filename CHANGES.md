@@ -1,6 +1,6 @@
 # Changes and TODO
 
-## 0.4 / 2012-Feb-??
+## 0.4 / 2012-Mar-02
 
 * Move from Bitbucket to Github
 * Move from Maven build to Leiningen build
