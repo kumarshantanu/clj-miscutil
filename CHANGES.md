@@ -4,7 +4,7 @@
 
 * Move from Bitbucket to Github
 * Move from Maven build to Leiningen build
-* [TODO] Move from Apache license to Eclipse license
+* Move from Apache license to Eclipse license
 * Add documentation
 * Support Clojure 1.2.0 through Clojure 1.4.0-beta2
 * Add static method-call/setter/getter for classes

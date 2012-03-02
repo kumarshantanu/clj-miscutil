@@ -1,4 +1,4 @@
-# Clj-MiscUtil v0.3
+# Clj-MiscUtil v0.4-SNAPSHOT
 
 Clj-MiscUtil is an assortment of Clojure functions/macros to carry out
 miscellaneous common activities. The functions deal with the following:
@@ -24,43 +24,43 @@ miscellaneous common activities. The functions deal with the following:
 
 Maven/Leiningen dependency details are here: [http://clojars.org/org.bituf/clj-miscutil](http://clojars.org/org.bituf/clj-miscutil)
 
-Examples for usage can be found in the tutorial below:
+Clj-MiscUtil v0.4 is tested for Clojure versions 1.2 through 1.4-beta2, and can be used by including the following in your namespace:
+
+    (ns example.app
+      (:use clj-miscutil))
+
+Please check `doc` directory for documentation.
 
 
 ## Building/Installation
 
-You will need Maven 2 to build from sources. Execute the following:
+You will need Leiningen to build from sources. Execute the following:
 
-    $ mvn clean package  # packages up a JAR in "target" dir
-    $ mvn install        # to install to your local Maven repo
-    $ mvn clojure:gendoc # generate Clojure API documentation
+    $ lein deps
+    $ lein multi test
+    $ lein jar
+    $ lein install
+
+To build documentation you will need to have `asciidoc` (and optionally, `pygments`) installed and in PATH. Run this:
+
+    $ cd doc
+    $ ./build-doc.sh
 
 
 ## License
 
-   Copyright (C) 2010, 2011 Shantanu Kumar (kumar[dot]shantanu[at]gmail[dot]com)
+Copyright (C) 2010-2012 Shantanu Kumar (kumar.shantanu@gmail.com)
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this software except in compliance with the License.
-   You may obtain a copy of the License at
-
-   [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+Distributed under the Eclipse Public License, the same as Clojure.
 
 
-# Documentation
+## Getting in touch
 
-Clj-MiscUtil can be used by including the following in your namespace:
+Email: [kumar.shantanu@gmail.com](kumar.shantanu@gmail.com)
 
-    (ns example.app
-      (:use org.bituf.clj-miscutil))
+Twitter: [@kumarshantanu](twitter.com/kumarshantanu)
 
 
-## Reference
+## Contributing
 
-Please check The Bitumen Framework Handbook [https://bitbucket.org/kumarshantanu/bituf-handbook/src](https://bitbucket.org/kumarshantanu/bituf-handbook/src)
+File bug reports on Github; fork and send pull requests.
