@@ -1313,12 +1313,15 @@
   replarenting the class name."
   {:added "0.4"}
   ([target method-name & args]
-    (Reflector/invokeStaticMethod
-      ;; Class/String target, String methodName, Object[] args
-      target
-      (if (keyword? method-name) (k-to-methodname method-name)
-        (as-string method-name))
-      (into-array Object args)))
+    (let [m-name (if (keyword? method-name) (k-to-methodname method-name)
+                   (as-string method-name))
+          a-args (into-array Object args)]
+      (comment (Reflector/invokeStaticMethod
+                 ;; Class/String target, String methodName, Object[] args
+                 target m-name a-args))
+      (if (class? target)
+        (Reflector/invokeStaticMethod ^Class  target ^String m-name ^"[Ljava.lang.Object;" a-args)
+        (Reflector/invokeStaticMethod ^String target ^String m-name ^"[Ljava.lang.Object;" a-args))))
   ([call-specs]
     (into [] (map #(apply static-method %) call-specs))))
 
