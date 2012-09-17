@@ -1,5 +1,11 @@
 # Changes and TODO
 
+## 0.4.1 / 2012-Sep-17
+
+* Fix reflection warning in `static-method`
+* Use semantic versioning (starting with `0.4.0`)
+* Require Leiningen 2 for builds
+
 ## 0.4 / 2012-Mar-02
 
 * Move from Bitbucket to Github
