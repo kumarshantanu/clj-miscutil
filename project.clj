@@ -1,4 +1,4 @@
-(defproject clj-miscutil "0.4"
+(defproject clj-miscutil "0.4.0"
   :description "Miscellaneous utility functions/macros in Clojure"
   :url "https://github.com/kumarshantanu/clj-miscutil"
   ;;:dependencies [[org.clojure/clojure "1.3.0"]]
