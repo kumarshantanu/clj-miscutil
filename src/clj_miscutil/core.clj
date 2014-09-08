@@ -24,6 +24,34 @@
 (declare as-vstr)
 
 
+;; ===== String helpers =====
+
+
+(defmacro sb-str
+  "Concatenate strings - faster than 'str'. Note that this is a macro, hence
+  cannot be used as a function."
+  [& args]
+  (cond (empty? args)      ""
+        (= 1 (count args)) (let [x (first args)]
+                             `(let [y# ~x]
+                                (cond (nil? y#)                ""
+                                      (instance? Boolean   y#) (.toString (Boolean.   y#))
+                                      (instance? Byte      y#) (.toString (Byte.      y#))
+                                      (instance? Character y#) (.toString (Character. y#))
+                                      (instance? Double    y#) (.toString (Double.    y#))
+                                      (instance? Float     y#) (.toString (Float.     y#))
+                                      (instance? Integer   y#) (.toString (Integer.   y#))
+                                      (instance? Long      y#) (.toString (Long.      y#))
+                                      (instance? Short     y#) (.toString (Short.     y#))
+                                      :otherwise               (.toString y#))))
+        :otherwise         (let [sb (gensym)
+                                 each-append #(list '.append sb %)
+                                 all-appends (map each-append args)]
+                             `(let [~sb (StringBuilder.)]
+                                ~@all-appends
+                                (.toString ~sb)))))
+
+
 ;; ===== Random values ======
 
 
@@ -494,7 +522,7 @@
   ([f]  {:post [(seq? %)]
          :pre  [(fn? f)]}
     (let [run (fn g[] (cons (f) (lazy-seq (g))))]
-      (run))) 
+      (run)))
   ([n f] {:pre [(and (number? n) (pos? n))]}
     (take n (repeat-exec f))))
 
@@ -640,7 +668,7 @@
 
 (defn ^String as-vstr
   "Convert to verbose string - useful for diagnostics and error messages. Like
-  as-string, but distinguishes nil as \"<nil>\". 
+  as-string, but distinguishes nil as \"<nil>\".
   Example:
     (as-string  nil) ; returns \"\"
     (as-vstr    nil) ; returns \"<nil>\"

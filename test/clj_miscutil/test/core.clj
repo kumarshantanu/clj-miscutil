@@ -13,6 +13,13 @@
       (seq m))))
 
 
+(deftest test-str
+  (testing "sb-str"
+    (is (= "45" (sb-str 45)))
+    (is (= "foobar" (sb-str "foo" "bar")))
+    (is (= "foobar45" (sb-str "foo" "bar" 45)))))
+
+
 (deftest test-maps
   (testing "map-keys"
     (is (= (array-map 2 2 4 4 6 6) (map-keys inc (array-map 1 2 3 4 5 6)))))
@@ -229,12 +236,12 @@
       (testall as-vstr
         {10 "10", nil "<nil>", "hello" "hello", :kw "kw"}))
     (testing "as-keys"
-      (testall as-keys
-        {{:a 10 :b 20} [:a :b], [:b :c] [:b :c]})
+      (testall (comp set as-keys)
+               {{:a 10 :b 20} #{:a :b}, [:b :c] #{:b :c}})
       (is (= 30 (as-keys [:a 20] 30))))
     (testing "as-vals"
-      (testall as-vals
-        {{:a 10 :b 20} [10 20], [:b :c] [:b :c]})
+      (testall (comp set as-vals)
+               {{:a 10 :b 20} #{10 20}, [:b :c] #{:b :c}})
       (is (= 33 (as-vals [:a 10] 33))))
     (testing "as-vector"
       (testall as-vector
@@ -331,7 +338,8 @@
           r (echo m)
           s (with-out-str (echo m))]
       (is (= r m) "Return value should be same as the argument")
-      (is (= s "{:a 10, :b 20}\n") "Output of 'pprint'"))))
+      (is (or (= s "{:a 10, :b 20}\n")
+              (= s "{:b 20, :a 10}\n")) "Output of 'pprint'"))))
 
 
 (deftest test-type-annotation
@@ -594,6 +602,7 @@
 
 
 (defn test-ns-hook []
+  (test-str)
   (test-maps)
   (test-random)
   (test-type-check)
