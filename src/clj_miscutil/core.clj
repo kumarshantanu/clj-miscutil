@@ -196,154 +196,6 @@
   (and (number? n) (neg? n)))
 
 
-;; ===== Print tables =====
-
-(def ^{:doc "Delimiter string to be printed between columns"
-       :dynamic true}
-      *pt-column-delim* " | ")
-
-(def ^{:doc "Minimum width for each column; effective only when computing width"
-       :dynamic true}
-      *pt-min-cols-width* (repeat 2))
-
-(def ^{:doc "Maximum width for each column; effective only when computing width"
-       :dynamic true}
-      *pt-max-cols-width* (repeat 200))
-
-(def ^{:doc "Default width for each column; non-positive number implies COMPUTE"
-       :dynamic true}
-      *pt-cols-width* (repeat -1))
-
-
-(defn compute-width
-  "Compute each column width for a collection of data rows; return result as a
-  collection."
-  [data-rows]
-  (when (coll? (try
-                 (first (first data-rows))
-                 (catch Exception e nil)))
-    (println "WARNING: Table data may not be in correct format"))
-  (let [col-count (count (first data-rows))
-        default-w (take col-count *pt-cols-width*)]
-    (if (every? posnum? default-w) default-w
-      ;; else compute
-      (let [sp-indices (keep-indexed #(if (posnum? %2) %1) default-w) ; indices of specified width values
-            as-v       #(if (coll? %) (into [] %) [%])
-            cols-width (atom (as-v (map #(if (posnum? %) % 0) default-w)))
-            compute-fn (fn [idx v]
-                         (if (.contains ^List sp-indices idx) (nth default-w idx)
-                           ;; else compute, really this time
-                           (->> v
-                             (max (nth @cols-width idx))
-                             (min (nth *pt-max-cols-width* idx))
-                             (max (nth *pt-min-cols-width* idx)))))]
-        (doseq [each-row data-rows]
-          (let [each-cols-width (as-v (map #(count (in/xlat-np-chars (str %)))
-                                         each-row))
-                computed-width  (as-v (map-indexed compute-fn each-cols-width))]
-            (reset! cols-width computed-width)))
-        (into [] @cols-width)))))
-
-
-(defn fixed-width-str
-  "Return fixed width string based on passed value and width. Alignment can
-  either be specified as :left, :right or :center/:centre; if unspecified, it
-  is inferred from the given value."
-  ([value width alignment]
-    (let [xlt (in/xlat-np-chars (str value)) ; translated text
-          len (count xlt)
-          lhs (case alignment
-                :right  (- width len)
-                :centre (/ (- width len) 2)
-                :center (/ (- width len) 2)
-                0)
-          rhs (case alignment
-                :left   (- width len)
-                :centre (/ (- width len) 2)
-                :center (/ (- width len) 2)
-                0)
-          spc #(apply str (repeat % \ ))]
-      (str (spc lhs) xlt (spc rhs))))
-  ([value width]
-    (let [alignment (cond
-                      (number?  value)  :right
-                      (boolean? value) :center
-                      :else :left)]
-      (fixed-width-str value width alignment))))
-
-
-(defn print-cols
-  "Print column values like a row in a table.
-  Example:
-    (print-cols [\"Nachos\" 1001 true] [10 5 5])"
-  [cols cols-width]
-  (let [fixed-width-tokens (map fixed-width-str cols cols-width)]
-    (println (apply str (interpose *pt-column-delim* fixed-width-tokens)))))
-
-
-(defn print-table-from-coll
-  "Print data table from a collection of rows. Expected input is a collection
-  of equi-count data cols (a list/vector each).
-  Example:
-    (print-table-from-coll [[1 2 3]
-                            [4 5 6]])
-    (print-table-from-coll [[\"James\" 2 3]
-                            [\"Henry\" 5 6]] [10 4 4])"
-  [data-rows]
-  (let [cols-width (compute-width data-rows)]
-    (doseq [each-row data-rows]
-      (print-cols each-row cols-width))))
-
-
-(defn print-table-with-header
-  "Print table with header columns (i.e. column titles). Accept collection of
-  equi-count data cols (a list/vector each).
-  Example:
-    (print-table-with-header [[1 2 3]
-                              [4 5 6]] [\"Q1\" \"Q2\" \"Q3\"])
-    (print-table-with-header [[\"James\" 2 3]
-                              [\"Henry\" 5 6]]
-                             [\"Name\" \"Days#\" \"Score\"] [10 4 4])"
-  [header-cols data-rows]
-  (let [all-rows   (cons header-cols data-rows)
-        all-width  (compute-width all-rows)
-        sep-cols   (doall (map #(apply str (take % (repeat \-))) all-width))
-        final-rows (into [header-cols sep-cols] data-rows)]
-    (doseq [each-row final-rows]
-      (print-cols each-row all-width))))
-
-
-(defn print-table-from-maps
-  "Print a collection of maps as a table; you must ensure all maps contain the
-  same keys.
-  Example:
-    (print-table-from-maps [{:name \"John\"  :age 34 :regular true}
-                            {:name \"Filip\" :age 23 :regular false}])
-    (print-table-from-maps [{:name \"John\"  :age 34 :regular true}
-                            {:name \"Filip\" :age 23 :regular false}]
-                           [20 5 10])"
-  [data-map-rows]
-  (let [header-cols (keys (first data-map-rows))
-        find-vals   (fn [m] (doall (map #(m %) header-cols)))
-        data-rows   (map find-vals data-map-rows)]
-    (print-table-with-header header-cols data-rows)))
-
-
-(defn print-table
-  "Print a table from collections of rows or maps.
-  Example:
-    (print-table [[10 20] [30 40]])             ; print table without header
-    (print-table [{:a 10 :b 20} {:a 30 :b 40}]) ; print table with header
-    (print-table [:a :b] [[10 20] [30 40]])     ; print table with header"
-  ([data-rows]
-    (if (map? (first data-rows)) (print-table-from-maps data-rows)
-      (print-table-from-coll data-rows)))
-  ([header-cols data-rows]
-    (let [data-coll (if (map? (first data-rows)) (doall (map vals data-rows))
-                      data-rows)]
-      (print-table-with-header header-cols data-coll))))
-
-
 ;; ===== Var metadata  =====
 
 (defmacro var-name
@@ -948,11 +800,15 @@
   "Print first non-empty stack trace from a given set of stack traces.
   See also: print-stacktrace"
   [& stacktrace-rows]
-  (print-table-with-header
-    (if *show-ide-reference*
-      ["File" "Line#" "Qualified Class or Function" "Method" "IDE Reference"]
-      ["File" "Line#" "Qualified Class or Function" "Method"])
-    (first (filter not-empty? stacktrace-rows))))
+  (let [header-cols (into ["File" "Line#" "Qualified Class or Function" "Method"]
+                          (if *show-ide-reference*
+                            ["IDE Reference"]
+                            []))]
+    (pp/print-table header-cols
+                    (->> stacktrace-rows
+                         (filter not-empty?)
+                         first
+                         (map (partial zipmap header-cols))))))
 
 
 (defn print-stacktrace-rows
