@@ -1,10 +1,18 @@
 # Changes and TODO
 
+## 0.5.0 / 2014-Sep-09
+
+* Support Clojure 1.3 through Clojure 1.7
+* Drop table printing functions (as they are built into Clojure 1.3 or higher)
+* Add `sb-str` macro for faster string concatenation
+
+
 ## 0.4.1 / 2012-Sep-17
 
 * Fix reflection warning in `static-method`
 * Use semantic versioning (starting with `0.4.0`)
 * Require Leiningen 2 for builds
+
 
 ## 0.4 / 2012-Mar-02
 
@@ -16,6 +24,7 @@
 * Add static method-call/setter/getter for classes
 * Rename `maybe-ret` to `maybe-val`
 * Rename `pick-filename-name` to `pick-filename-only`
+
 
 ## 0.3 / 2011-Apr-01
 

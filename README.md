@@ -3,8 +3,8 @@
 This project is an assortment of Clojure functions/macros to carry out
 miscellaneous common activities. The functions deal with the following:
 
+* fast string concatenation
 * boolean values
-* table printing
 * var meta data
 * constructing exceptions
 * type conversion/wrapping
@@ -24,9 +24,9 @@ miscellaneous common activities. The functions deal with the following:
 
 On Clojars: [http://clojars.org/clj-miscutil](http://clojars.org/clj-miscutil)
 
-Leiningen dependency: `[clj-miscutil "0.4.1"]`
+Leiningen dependency: `[clj-miscutil "0.5.0"]`
 
-Supported Clojure versions: Clojure versions 1.2 through 1.5
+Supported Clojure versions: Clojure versions 1.3 through 1.7
 
 Include the following in your namespace:
 
@@ -59,7 +59,7 @@ $ ./build-doc.sh
 
 ## License
 
-Copyright © 2010-2012 Shantanu Kumar
+Copyright © 2010-2014 Shantanu Kumar
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
